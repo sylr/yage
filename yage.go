@@ -46,8 +46,8 @@ Options:
     -r, --recipient RECIPIENT   Encrypt to the specified RECIPIENT. Can be repeated.
     -R, --recipients-file PATH  Encrypt to recipients listed at PATH. Can be repeated.
     -d, --decrypt               Decrypt the input to the output.
-	-i, --identity PATH         Use the identity file at PATH. Can be repeated.
-	    --version
+    -i, --identity PATH         Use the identity file at PATH. Can be repeated.
+        --version
     -y, --yaml                  Treat input as YAML and perform in-place encryption / decryption.
         --yaml-discard-notag    Does not honour NoTag attribute when decrypting (useful for re-keying).
 
