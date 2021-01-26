@@ -60,7 +60,7 @@ GO_TOOLS_GOLANGCI_LINT  ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 
 # ------------------------------------------------------------------------------
 
-all: crossbuild
+all: crossbuild crossbuild-checksums
 
 .PHONY: build-go .FORCE
 
@@ -102,6 +102,11 @@ $(GO_CROSSBUILD_WINDOWS_TARGET_PATTERN): $(GO_BUILD_SRC) $(GO_BUILD_FLAGS_TARGET
 
 $(GO_CROSSBUILD_DARWIN_TARGET_PATTERN): $(GO_BUILD_SRC) $(GO_BUILD_FLAGS_TARGET)
 	CGO_ENABLED=0 GOOS=darwin GOARCH=$* $(GO) build -tags $(GO_BUILD_TAGS),crossbuild $(GO_BUILD_FLAGS) $(GO_BUILD_LDFLAGS) -o $@
+
+crossbuild-checksums: dist/checksums
+
+dist/checksums : $(GO_CROSSBUILD_TARGETS)
+	cd dist && shasum -a 256 yage-*-* > checksums
 
 # -- go mod --------------------------------------------------------------------
 
