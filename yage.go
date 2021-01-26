@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	_log "log"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"strings"
 
@@ -122,7 +123,7 @@ func main() {
 
 	if versionFlag {
 		if Version != "" {
-			fmt.Println(Version)
+			fmt.Printf("%s (%s)\n", Version, runtime.Version())
 			return
 		}
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
