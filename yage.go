@@ -36,9 +36,9 @@ func (f *multiFlag) Set(value string) error {
 }
 
 const usage = `Usage:
-    age (-r RECIPIENT | -R PATH)... [--armor] [-o OUTPUT] [INPUT]
-    age --passphrase [--armor] [-o OUTPUT] [INPUT]
-    age --decrypt [-i PATH]... [-o OUTPUT] [INPUT]
+    yage (-r RECIPIENT | -R PATH)... [--armor] [-o OUTPUT] [INPUT]
+    yage --passphrase [--armor] [-o OUTPUT] [INPUT]
+    yage --decrypt [-i PATH]... [-o OUTPUT] [INPUT]
 
 Options:
     -o, --output OUTPUT         Write the result to the file at path OUTPUT.
@@ -67,14 +67,23 @@ ignored as comments. Multiple key files can be provided, and any unused ones
 will be ignored. "-" may be used to read identities from standard input.
 
 Example:
+    # Generate age key pair
     $ age-keygen -o key.txt
     Public key: age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p
-    $ tar cvz ~/data | age -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p > data.tar.gz.age
-    $ age --decrypt -i key.txt -o data.tar.gz data.tar.gz.age
 
-    # only yaml keys tagged with !crypto/age will be encrypted
-    $ age -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p -y config.yaml > config.yaml.age
-    $ age --decrypt -i key.txt -y config.yaml.age
+    # Tar folder and encrypt it with yage
+    $ tar cvz ~/data | yage -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p > data.tar.gz.age
+    $ yage --decrypt -i key.txt -o data.tar.gz data.tar.gz.age
+
+    # Encrypt YAML keys in place tagged with !crypto/age
+    $ yage -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p -y config.yaml > config.yaml.age
+
+    # Decrypt YAML file encrypted with yage
+    $ yage --decrypt -i key.txt --yaml config.yaml.age
+
+    # Re-key age encrypted YAML with all tags
+    $ yage --decrypt -i key.txt --yaml --yaml-discard-notag config.yaml.age | \
+        yage -r ... -r ... --yaml
 `
 
 // Version can be set at link time to override debug.BuildInfo.Main.Version,
@@ -498,6 +507,4 @@ func (l *lazyOpener) Close() error {
 
 func logFatalf(format string, v ...interface{}) {
 	_log.Printf(format, v...)
-	_log.Fatalf("[ Did age not do what you expected? Could an error be more useful?" +
-		" Tell us: https://filippo.io/age/report ]")
 }
