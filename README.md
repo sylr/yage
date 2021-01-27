@@ -86,7 +86,9 @@ Install
 ### From sources
 
 ```shell
-$ go install sylr.dev/yage
+$ go get -d sylr.dev/yaml
+$ go get -d sylr.dev/yaml/age
+$ go get sylr.dev/yage
 ```
 
 ### Binaries
