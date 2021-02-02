@@ -314,7 +314,6 @@ func encryptPass(pass string, in io.Reader, out io.Writer, armor bool, yaml bool
 }
 
 func encrypt(recipients []age.Recipient, in io.Reader, out io.Writer, withArmor bool) {
-	ageEncrypt := age.Encrypt
 	if withArmor {
 		a := armor.NewWriter(out)
 		defer func() {
@@ -324,7 +323,7 @@ func encrypt(recipients []age.Recipient, in io.Reader, out io.Writer, withArmor 
 		}()
 		out = a
 	}
-	w, err := ageEncrypt(out, recipients...)
+	w, err := age.Encrypt(out, recipients...)
 	if err != nil {
 		logFatalf("Error: %v", err)
 	}
