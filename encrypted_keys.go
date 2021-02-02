@@ -22,10 +22,7 @@ type LazyScryptIdentity struct {
 var _ age.Identity = &LazyScryptIdentity{}
 
 func (i *LazyScryptIdentity) Unwrap(stanzas []*age.Stanza) (fileKey []byte, err error) {
-	if len(stanzas) != 1 {
-		return nil, fmt.Errorf("multiple scrypt recipients for a single file")
-	}
-	if stanzas[0].Type != "scrypt" {
+	if len(stanzas) != 1 || stanzas[0].Type != "scrypt" {
 		return nil, age.ErrIncorrectIdentity
 	}
 	pass, err := i.Passphrase()
