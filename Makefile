@@ -14,8 +14,8 @@ GO_BUILD_FLAGS           := -trimpath
 GO_BUILD_LDFLAGS_OPTIMS  :=
 
 ifeq ($(GOOS)/$(GOARCH),$(GOENV_GOOS)/$(GOENV_GOARCH))
-GO_BUILD_TARGET          := dist/yage
-GO_BUILD_VERSION_TARGET  := dist/yage-$(GIT_VERSION)
+GO_BUILD_TARGET          ?= dist/yage
+GO_BUILD_VERSION_TARGET  ?= dist/yage-$(GIT_VERSION)
 else
 GO_BUILD_TARGET          := dist/yage-$(GOOS)-$(GOARCH)
 GO_BUILD_VERSION_TARGET  := dist/yage-$(GOOS)-$(GOARCH)-$(GIT_VERSION)
@@ -64,6 +64,9 @@ all: crossbuild crossbuild-checksums
 
 .PHONY: build-go .FORCE
 
+install:
+	CGO_ENABLED=0 $(GO) install -tags $(GO_BUILD_TAGS) $(GO_BUILD_FLAGS) $(GO_BUILD_LDFLAGS)
+
 $(GO_BUILD_FLAGS_TARGET) : .FORCE
 	@(echo "GO_VERSION=$(shell $(GO) version)"; \
 	  echo "GO_GOOS=$(GOOS)"; \
@@ -84,7 +87,7 @@ $(GO_BUILD_TARGET): $(GO_BUILD_VERSION_TARGET)
 	@ln $< $@
 
 $(GO_BUILD_VERSION_TARGET): $(GO_BUILD_SRC) $(GO_GENERATE_TARGET) $(GO_BUILD_FLAGS_TARGET) | $(GO_BUILD_TARGET_DEPS)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags $(GO_BUILD_TAGS) $(GO_BUILD_FLAGS) $(GO_BUILD_LDFLAGS) -o $@
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -tags $(GO_BUILD_TAGS) $(GO_BUILD_FLAGS) $(GO_BUILD_LDFLAGS) -o $@
 
 crossbuild: $(GO_BUILD_VERSION_TARGET) $(GO_CROSSBUILD_TARGETS)
 
