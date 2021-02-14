@@ -1,5 +1,7 @@
 filippo.io/age v1.0.0-beta6.0.20210121110402-31e0d226807f h1:SSLEnMmEuW6x4kiaCGOXwZwfsFhsdLJHw/vu6vq54BI=
 filippo.io/age v1.0.0-beta6.0.20210121110402-31e0d226807f/go.mod h1:chAuTrTb0FTTmKtvs6fQTGhYTvH9AigjN1uEUsvLdZ0=
+filippo.io/age v1.0.0-beta6.0.20210203120348-3f9d63be4d1c h1:ED/iFE/CaGNjnQU/PHrZWZ1uzclvCy+MtMAr+dnN1Ek=
+filippo.io/age v1.0.0-beta6.0.20210203120348-3f9d63be4d1c/go.mod h1:chAuTrTb0FTTmKtvs6fQTGhYTvH9AigjN1uEUsvLdZ0=
 filippo.io/edwards25519 v1.0.0-alpha.2 h1:EWbZLqGEPSIj2W69gx04KtNVkyPIfe3uj0DhDQJonbQ=
 filippo.io/edwards25519 v1.0.0-alpha.2/go.mod h1:X+pm78QAUPtFLi1z9PYIlS/bdDnvbCOGKtZ+ACWEf7o=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

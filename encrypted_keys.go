@@ -7,6 +7,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -20,11 +21,10 @@ type LazyScryptIdentity struct {
 
 var _ age.Identity = &LazyScryptIdentity{}
 
-func (i *LazyScryptIdentity) Type() string {
-	return "scrypt"
-}
-
-func (i *LazyScryptIdentity) Unwrap(block *age.Stanza) (fileKey []byte, err error) {
+func (i *LazyScryptIdentity) Unwrap(stanzas []*age.Stanza) (fileKey []byte, err error) {
+	if len(stanzas) != 1 || stanzas[0].Type != "scrypt" {
+		return nil, age.ErrIncorrectIdentity
+	}
 	pass, err := i.Passphrase()
 	if err != nil {
 		return nil, fmt.Errorf("could not read passphrase: %v", err)
@@ -33,12 +33,13 @@ func (i *LazyScryptIdentity) Unwrap(block *age.Stanza) (fileKey []byte, err erro
 	if err != nil {
 		return nil, err
 	}
-	fileKey, err = ii.Unwrap(block)
-	if err == age.ErrIncorrectIdentity {
-		// The API will just ignore the identity if the passphrase is wrong, and
-		// move on, eventually returning "no identity matched a recipient".
-		// Since we only supply one identity from the CLI, make it a fatal
-		// error with a better message.
+	fileKey, err = ii.Unwrap(stanzas)
+	if errors.Is(err, age.ErrIncorrectIdentity) {
+		// ScryptIdentity returns ErrIncorrectIdentity for an incorrect
+		// passphrase, which would lead Decrypt to returning "no identity
+		// matched any recipient". That makes sense in the API, where there
+		// might be multiple configured ScryptIdentity. Since in cmd/age there
+		// can be only one, return a better error message.
 		return nil, fmt.Errorf("incorrect passphrase")
 	}
 	return fileKey, err
