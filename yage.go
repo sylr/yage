@@ -505,5 +505,5 @@ func (l *lazyOpener) Close() error {
 }
 
 func logFatalf(format string, v ...interface{}) {
-	_log.Printf(format, v...)
+	_log.Fatalf(format, v...)
 }
