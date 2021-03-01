@@ -3,9 +3,11 @@ module sylr.dev/yage
 go 1.15
 
 require (
-	filippo.io/age v1.0.0-beta6.0.20210203120348-3f9d63be4d1c
-	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
-	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
+	filippo.io/age v1.0.0-beta7.0.20210208185528-225044b061de
+	filippo.io/edwards25519 v1.0.0-beta.3 // indirect
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
+	golang.org/x/sys v0.0.0-20210301091718-77cc2087c03b // indirect
+	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	sylr.dev/yaml/age/v3 v3.0.0-20210125094645-a2c1da7b8f3b
-	sylr.dev/yaml/v3 v3.0.0-20210121142446-5fe289210a56
+	sylr.dev/yaml/v3 v3.0.0-20210127132132-941109e4f08c
 )

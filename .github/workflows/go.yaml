@@ -7,10 +7,12 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        go: ["1.14", "1.15.8"]
+        go: ["1.16"]
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Go ${{ matrix.go }}
       uses: actions/setup-go@v2
       with:
