@@ -45,6 +45,9 @@ Options:
         --version
     -y, --yaml                  Treat input as YAML and perform in-place encryption / decryption.
         --yaml-discard-notag    Does not honour NoTag attribute when decrypting (useful for re-keying).
+        --rekey                 Decrypt the input and encrypt it with the given recipients.
+                                In re-keying mode the input and output can be the same file.
+                                In YAML mode it implies --yaml-discard-notag.
 
 INPUT defaults to standard input, and OUTPUT defaults to standard output.
 
@@ -76,8 +79,7 @@ Example:
     $ yage --decrypt -i key.txt --yaml config.yaml.age
 
     # Re-key age encrypted YAML with all tags
-    $ yage --decrypt -i key.txt --yaml --yaml-discard-notag config.yaml.age | \
-        yage -r ... -r ... --yaml
+    $ yage --rekey --yaml -i key.txt -R ~/.ssh/id_ed25519.pub -R ~/.ssh/id_rsa.pub -o config.yaml.age config.yaml.age
 ```
 
 Install

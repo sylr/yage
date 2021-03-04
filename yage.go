@@ -51,6 +51,9 @@ Options:
         --version
     -y, --yaml                  Treat input as YAML and perform in-place encryption / decryption.
         --yaml-discard-notag    Does not honour NoTag attribute when decrypting (useful for re-keying).
+        --rekey                 Decrypt the input and encrypt it with the given recipients.
+                                In re-keying mode the input and output can be the same file.
+                                In YAML mode it implies --yaml-discard-notag.
 
 INPUT defaults to standard input, and OUTPUT defaults to standard output.
 
@@ -81,9 +84,8 @@ Example:
     # Decrypt YAML file encrypted with yage
     $ yage --decrypt -i key.txt --yaml config.yaml.age
 
-    # Re-key age encrypted YAML with all tags
-    $ yage --decrypt -i key.txt --yaml --yaml-discard-notag config.yaml.age | \
-        yage -r ... -r ... --yaml
+    # Re-key age encrypted YAML
+    $ yage --rekey --yaml -i key.txt -R ~/.ssh/id_ed25519.pub -R ~/.ssh/id_rsa.pub -o config.yaml.age config.yaml.age
 `
 
 // Version can be set at link time to override debug.BuildInfo.Main.Version,
@@ -105,6 +107,7 @@ func main() {
 		decryptFlag, armorFlag         bool
 		passFlag, versionFlag          bool
 		yamlFlag, yamlDiscardNotagFlag bool
+		rekeyFlag                      bool
 		recipientFlags, identityFlags  multiFlag
 		recipientsFileFlags            multiFlag
 	)
@@ -112,6 +115,7 @@ func main() {
 	flag.BoolVar(&versionFlag, "version", false, "print the version")
 	flag.BoolVar(&decryptFlag, "d", false, "decrypt the input")
 	flag.BoolVar(&decryptFlag, "decrypt", false, "decrypt the input")
+	flag.BoolVar(&rekeyFlag, "rekey", false, "rekey the input")
 	flag.BoolVar(&passFlag, "p", false, "use a passphrase")
 	flag.BoolVar(&passFlag, "passphrase", false, "use a passphrase")
 	flag.BoolVar(&passFlag, "verbose", false, "ouput version")
@@ -192,26 +196,35 @@ func main() {
 
 	var in io.Reader = os.Stdin
 	var out io.Writer = os.Stdout
+	inputName := flag.Arg(0)
+	outputName := outFlag
 
-	if name := flag.Arg(0); name != "" && name != "-" {
-		f, err := os.Open(name)
+	if inputName != "" && inputName != "-" {
+		f, err := os.Open(inputName)
 		if err != nil {
-			logFatalf("Error: failed to open input file %q: %v", name, err)
+			logFatalf("Error: failed to open input file %q: %v", inputName, err)
 		}
 		defer f.Close()
 		in = f
 	} else {
 		stdinInUse = true
 	}
-	if name := outFlag; name != "" && name != "-" {
-		if _, err := os.Stat(name); err == nil {
-			logFatalf("Error: output file %q exists", name)
+
+	if outputName != "" && outputName != "-" {
+		overwrite := false
+		istat, _ := os.Stat(inputName)
+		ostat, _ := os.Stat(outputName)
+		if rekeyFlag && istat.Name() == ostat.Name() {
+			// in rekey mode we allow to overwrite the input file
+			overwrite = true
+		} else if _, err := os.Stat(outputName); err == nil {
+			logFatalf("Error: output file %q exists", outputName)
 		}
-		f := newLazyOpener(name)
+		f := newLazyOpener(outputName, overwrite)
 		defer f.Close()
 		out = f
 	} else if term.IsTerminal(int(os.Stdout.Fd())) {
-		if name != "-" {
+		if outputName != "-" {
 			if decryptFlag {
 				// TODO: buffer the output and check it's printable.
 			} else if !armorFlag {
@@ -231,6 +244,14 @@ func main() {
 	}
 
 	switch {
+	case rekeyFlag:
+		outbuf := &bytes.Buffer{}
+		if yamlFlag {
+			decryptYAML(identityFlags, in, outbuf, true)
+		} else {
+			decrypt(identityFlags, in, outbuf)
+		}
+		encryptKeys(recipientFlags, recipientsFileFlags, outbuf, out, armorFlag, yamlFlag)
 	case decryptFlag:
 		if yamlFlag {
 			decryptYAML(identityFlags, in, out, yamlDiscardNotagFlag)
@@ -478,18 +499,25 @@ func passphrasePrompt() (string, error) {
 }
 
 type lazyOpener struct {
-	name string
-	f    *os.File
-	err  error
+	name      string
+	overwrite bool
+	f         *os.File
+	err       error
 }
 
-func newLazyOpener(name string) io.WriteCloser {
-	return &lazyOpener{name: name}
+func newLazyOpener(name string, overwrite bool) io.WriteCloser {
+	return &lazyOpener{name: name, overwrite: overwrite}
 }
 
 func (l *lazyOpener) Write(p []byte) (n int, err error) {
 	if l.f == nil && l.err == nil {
-		l.f, l.err = os.OpenFile(l.name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
+		oFlags := os.O_WRONLY | os.O_CREATE
+		if l.overwrite {
+			oFlags = oFlags | os.O_TRUNC
+		} else {
+			oFlags = oFlags | os.O_EXCL
+		}
+		l.f, l.err = os.OpenFile(l.name, oFlags, 0666)
 	}
 	if l.err != nil {
 		return 0, l.err
