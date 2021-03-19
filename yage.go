@@ -158,6 +158,7 @@ func main() {
 	}
 
 	switch {
+	case rekeyFlag:
 	case decryptFlag:
 		if armorFlag {
 			logFatalf("Error: -a/--armor can't be used with -d/--decrypt.\n" +
@@ -209,6 +210,11 @@ func main() {
 		in = f
 	} else {
 		stdinInUse = true
+	}
+
+	// --rekey overwrite input file if no output file given
+	if rekeyFlag && outputName == "" {
+		outputName = inputName
 	}
 
 	if outputName != "" && outputName != "-" {
