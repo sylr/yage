@@ -32,7 +32,7 @@ GO_CROSSBUILD_PLATFORMS               ?= linux/amd64 linux/386 linux/arm linux/a
 GO_CROSSBUILD_PLATFORMS               += freebsd/amd64 freebsd/386 freebsd/arm freebsd/arm64
 GO_CROSSBUILD_PLATFORMS               += openbsd/amd64 openbsd/386 openbsd/arm openbsd/arm64
 GO_CROSSBUILD_PLATFORMS               += windows/amd64 windows/386 windows/arm
-GO_CROSSBUILD_PLATFORMS               += darwin/amd64
+GO_CROSSBUILD_PLATFORMS               += darwin/amd64 darwin/arm64
 GO_CROSSBUILD_LINUX_PLATFORMS         := $(filter linux/%,$(GO_CROSSBUILD_PLATFORMS))
 GO_CROSSBUILD_FREEBSD_PLATFORMS       := $(filter freebsd/%,$(GO_CROSSBUILD_PLATFORMS))
 GO_CROSSBUILD_OPENBSD_PLATFORMS       := $(filter openbsd/%,$(GO_CROSSBUILD_PLATFORMS))
@@ -138,4 +138,4 @@ lint: $(GO_TOOLS_GOLANGCI_LINT)
 tools: $(GO_TOOLS_GOLANGCI_LINT)
 
 $(GO_TOOLS_GOLANGCI_LINT):
-	GO111MODULE=on $(GO) get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.36.0
+	$(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.36.0

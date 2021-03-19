@@ -8,5 +8,5 @@ require (
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/term v0.0.0-20201117132131-f5c789dd3221
 	sylr.dev/yaml/age/v3 v3.0.0-20210125094645-a2c1da7b8f3b
-	sylr.dev/yaml/v3 v3.0.0-20210121142446-5fe289210a56
+	sylr.dev/yaml/v3 v3.0.0-20210127132132-941109e4f08c
 )

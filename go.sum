@@ -59,5 +59,6 @@ gopkg.in/yaml.v2 v2.2.4 h1:/eiJrUcujPVeJ3xlSWaiNi3uSVmDGBK1pDHUHAnao1I=
 gopkg.in/yaml.v2 v2.2.4/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 sylr.dev/yaml/age/v3 v3.0.0-20210125094645-a2c1da7b8f3b h1:JoOg5lchMhhE7kg6hN1eeBY6a4XwL9xMvQp8SqZO0iQ=
 sylr.dev/yaml/age/v3 v3.0.0-20210125094645-a2c1da7b8f3b/go.mod h1:uDQSkLAzHqdchPOX/psvSfGlDSmjUasNLDq/K++f6KU=
-sylr.dev/yaml/v3 v3.0.0-20210121142446-5fe289210a56 h1:RkhpOJdDvkxi9oz5wn8szqh7tEsh/1+3IgGYYlpf0NE=
 sylr.dev/yaml/v3 v3.0.0-20210121142446-5fe289210a56/go.mod h1:4Zku0VUqOuAOvzh8sDnNBOWxgBFIbfHfWtGZI+Qjwx4=
+sylr.dev/yaml/v3 v3.0.0-20210127132132-941109e4f08c h1:sRkXQGNIGova/Rt+wgnErF1n8qE39Jg8Z9CajqMohUY=
+sylr.dev/yaml/v3 v3.0.0-20210127132132-941109e4f08c/go.mod h1:4Zku0VUqOuAOvzh8sDnNBOWxgBFIbfHfWtGZI+Qjwx4=
