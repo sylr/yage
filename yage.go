@@ -9,7 +9,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -21,6 +20,7 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/armor"
+	flag "github.com/spf13/pflag"
 	"golang.org/x/term"
 	yage "sylr.dev/yaml/age/v3"
 	"sylr.dev/yaml/v3"
@@ -31,6 +31,15 @@ type multiFlag []string
 func (f *multiFlag) String() string { return fmt.Sprint(*f) }
 
 func (f *multiFlag) Set(value string) error {
+	*f = append(*f, value)
+	return nil
+}
+
+func (f *multiFlag) Type() string {
+	return "multiFlag"
+}
+
+func (f *multiFlag) Append(value string) error {
 	*f = append(*f, value)
 	return nil
 }
@@ -113,24 +122,16 @@ func main() {
 	)
 
 	flag.BoolVar(&versionFlag, "version", false, "print the version")
-	flag.BoolVar(&decryptFlag, "d", false, "decrypt the input")
-	flag.BoolVar(&decryptFlag, "decrypt", false, "decrypt the input")
+	flag.BoolVarP(&decryptFlag, "decrypt", "d", false, "decrypt the input")
 	flag.BoolVar(&rekeyFlag, "rekey", false, "rekey the input")
-	flag.BoolVar(&passFlag, "p", false, "use a passphrase")
-	flag.BoolVar(&passFlag, "passphrase", false, "use a passphrase")
-	flag.BoolVar(&passFlag, "verbose", false, "ouput version")
-	flag.StringVar(&outFlag, "o", "", "output to `FILE` (default stdout)")
-	flag.StringVar(&outFlag, "output", "", "output to `FILE` (default stdout)")
+	flag.BoolVarP(&passFlag, "passphrase", "p", false, "use a passphrase")
+	flag.StringVarP(&outFlag, "output", "o", "", "output to `FILE` (default stdout)")
 	flag.BoolVar(&armorFlag, "a", false, "generate an armored file")
 	flag.BoolVar(&armorFlag, "armor", false, "generate an armored file")
-	flag.Var(&recipientFlags, "r", "recipient (can be repeated)")
-	flag.Var(&recipientFlags, "recipient", "recipient (can be repeated)")
-	flag.Var(&recipientsFileFlags, "R", "recipients file (can be repeated)")
-	flag.Var(&recipientsFileFlags, "recipients-file", "recipients file (can be repeated)")
-	flag.Var(&identityFlags, "i", "identity (can be repeated)")
-	flag.Var(&identityFlags, "identity", "identity (can be repeated)")
-	flag.BoolVar(&yamlFlag, "y", false, "in-place yaml encrypting/decrypting")
-	flag.BoolVar(&yamlFlag, "yaml", false, "in-place yaml encrypting/decrypting")
+	flag.VarP(&recipientFlags, "recipient", "r", "recipient (can be repeated)")
+	flag.VarP(&recipientsFileFlags, "recipients-file", "R", "recipients file (can be repeated)")
+	flag.VarP(&identityFlags, "identity", "i", "identity (can be repeated)")
+	flag.BoolVarP(&yamlFlag, "yaml", "y", false, "in-place yaml encrypting/decrypting")
 	flag.BoolVar(&yamlDiscardNotagFlag, "yaml-discard-notag", false, "do not honour NoTag YAML tag attribute")
 	flag.Parse()
 
