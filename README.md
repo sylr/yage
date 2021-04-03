@@ -1,29 +1,38 @@
-# age
+yage
+====
 
-[![pkg.go.dev](https://pkg.go.dev/badge/filippo.io/age)](https://pkg.go.dev/filippo.io/age)
+`yage` is a fork of `filippo.io/age/cmd/age` with added YAML support.
 
-age is a simple, modern and secure file encryption tool, format, and library.
+This project contains **no cryptographic logic**, all of that remains
+[in the original project](https://github.com/FiloSottile/age).
 
-It features small explicit keys, no config options, and UNIX-style composability.
+`yage` encrypts YAML key values in place using YAML tag `!crypto/age` as marker.
+It only support encoding strings.
 
+```yaml
+---
+simpletag: !crypto/age simple value
+doublequoted: !crypto/age:DoubleQuoted double quoted value
+singlequoted: !crypto/age:SingleQuoted single quoted value
+literal: !crypto/age:Literal literal value
+flowed: !crypto/age:Flow flowed value
+folded: !crypto/age:Folded folded value
+# the NoTag attribute will cause yage to drop the tag when decrypting
+notag: !crypto/age:Literal,NoTag literal untagged value
 ```
-$ age-keygen -o key.txt
-Public key: age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p
-$ tar cvz ~/data | age -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p > data.tar.gz.age
-$ age --decrypt -i key.txt data.tar.gz.age > data.tar.gz
-```
 
-The format specification is at [age-encryption.org/v1](https://age-encryption.org/v1). To discuss the spec or other age related topics, please email [the mailing list](https://groups.google.com/d/forum/age-dev) at age-dev@googlegroups.com. age was designed by [@Benjojo12](https://twitter.com/Benjojo12) and [@FiloSottile](https://twitter.com/FiloSottile).
+⚠️ YAML formatting may be modified when encrypting/decrypting in place due to limitations
+of the YAML library used. If you must conserve YAML formatting you'll need to
+encrypt it as a regular file.
 
-An alternative interoperable Rust implementation is available at [github.com/str4d/rage](https://github.com/str4d/rage).
-
-## Usage
+Usage
+-----
 
 ```
 Usage:
-    age (-r RECIPIENT | -R PATH)... [--armor] [-o OUTPUT] [INPUT]
-    age --passphrase [--armor] [-o OUTPUT] [INPUT]
-    age --decrypt [-i PATH]... [-o OUTPUT] [INPUT]
+    yage (-r RECIPIENT | -R PATH)... [--armor] [-o OUTPUT] [INPUT]
+    yage --passphrase [--armor] [-o OUTPUT] [INPUT]
+    yage --decrypt [-i PATH]... [-o OUTPUT] [INPUT]
 
 Options:
     -o, --output OUTPUT         Write the result to the file at path OUTPUT.
@@ -33,6 +42,12 @@ Options:
     -R, --recipients-file PATH  Encrypt to recipients listed at PATH. Can be repeated.
     -d, --decrypt               Decrypt the input to the output.
     -i, --identity PATH         Use the identity file at PATH. Can be repeated.
+        --version
+    -y, --yaml                  Treat input as YAML and perform in-place encryption / decryption.
+        --yaml-discard-notag    Does not honour NoTag attribute when decrypting (useful for re-keying).
+        --rekey                 Decrypt the input and encrypt it with the given recipients.
+                                In re-keying mode the input and output can be the same file.
+                                In YAML mode it implies --yaml-discard-notag.
 
 INPUT defaults to standard input, and OUTPUT defaults to standard output.
 
@@ -47,101 +62,49 @@ Identity files contain one or more secret keys ("AGE-SECRET-KEY-1..."),
 one per line, or an SSH key. Empty lines and lines starting with "#" are
 ignored as comments. Multiple key files can be provided, and any unused ones
 will be ignored. "-" may be used to read identities from standard input.
+
+Example:
+    # Generate age key pair
+    $ age-keygen -o key.txt
+    Public key: age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p
+
+    # Tar folder and encrypt it with yage
+    $ tar cvz ~/data | yage -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p > data.tar.gz.age
+    $ yage --decrypt -i key.txt -o data.tar.gz data.tar.gz.age
+
+    # Encrypt YAML keys in place tagged with !crypto/age
+    $ yage -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p -y config.yaml > config.yaml.age
+
+    # Decrypt YAML file encrypted with yage
+    $ yage --decrypt -i key.txt --yaml config.yaml.age
+
+    # Re-key age encrypted YAML with all tags
+    $ yage --rekey --yaml -i key.txt -R ~/.ssh/id_ed25519.pub -R ~/.ssh/id_rsa.pub -o config.yaml.age config.yaml.age
 ```
 
-### Multiple recipients
+Install
+-------
 
-Files can be encrypted to multiple recipients by repeating `-r/--recipient`. Every recipient will be able to decrypt the file.
+### From sources
 
-```
-$ age -o example.jpg.age -r age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p \
-    -r age1lggyhqrw2nlhcxprm67z43rta597azn8gknawjehu9d9dl0jq3yqqvfafg example.jpg
-```
-
-#### Recipient files
-
-Multiple recipients can also be listed one per line in one or more files passed with the `-R/--recipients-file` flag.
-
-```
-$ cat recipients.txt
-# Alice
-age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p
-# Bob
-age1lggyhqrw2nlhcxprm67z43rta597azn8gknawjehu9d9dl0jq3yqqvfafg
-$ age -R recipients.txt example.jpg > example.jpg.age
+```shell
+$ go get -d sylr.dev/yaml
+$ go get -d sylr.dev/yaml/age
+$ go get sylr.dev/yage
 ```
 
-If the argument to `-R` (or `-i`) is `-`, the file is read from standard input.
+### Binaries
 
-### Passphrases
+You can find pre-built binaries in the [here](https://github.com/sylr/yage/releases).
 
-Files can be encrypted with a passphrase by using `-p/--passphrase`. By default age will automatically generate a secure passphrase. Passphrase protected files are automatically detected at decrypt time.
+Upstreams
+---------
 
-```
-$ age -p secrets.txt > secrets.txt.age
-Enter passphrase (leave empty to autogenerate a secure one):
-Using the autogenerated passphrase "release-response-step-brand-wrap-ankle-pair-unusual-sword-train".
-$ age -d secrets.txt.age > secrets.txt
-Enter passphrase:
-```
-
-### SSH keys
-
-As a convenience feature, age also supports encrypting to `ssh-rsa` and `ssh-ed25519` SSH public keys, and decrypting with the respective private key file. (`ssh-agent` is not supported.)
-
-```
-$ age -R ~/.ssh/id_ed25519.pub example.jpg > example.jpg.age
-$ age -d -i ~/.ssh/id_ed25519 example.jpg.age > example.jpg
-```
-
-Note that SSH key support employs more complex cryptography, and embeds a public key tag in the encrypted file, making it possible to track files that are encrypted to a specific public key.
-
-#### Encrypting to a GitHub user
-
-Combining SSH key support and `-R`, you can easily encrypt a file to the SSH keys listed on a GitHub profile.
-
-```
-$ curl https://github.com/benjojo.keys | age -R - example.jpg > example.jpg.age
-```
-
-Keep in mind that people might not protect SSH keys long-term, since they are revokable when used only for authentication, and that SSH keys held on YubiKeys can't be used to decrypt files.
-
-## Installation
-
-On macOS or Linux, you can use Homebrew:
-
-```
-brew tap filippo.io/age https://filippo.io/age
-brew install age
-```
-
-On Windows, Linux, and macOS, you can use [the pre-built binaries](https://github.com/FiloSottile/age/releases).
-
-If your system has [Go 1.13+](https://golang.org/dl/), you can build from source:
-
-```
-git clone https://filippo.io/age && cd age
-go build -o . filippo.io/age/cmd/...
-```
-
-On Arch Linux, age is available from AUR as [`age`](https://aur.archlinux.org/packages/age/) or [`age-git`](https://aur.archlinux.org/packages/age-git/):
-
-```bash
-git clone https://aur.archlinux.org/age.git
-cd age
-makepkg -si
-```
-
-On OpenBSD -current and 6.7+, you can use the port:
-
-```
-pkg_add age
-```
-
-On all supported versions of FreeBSD, you can build the security/age port or use pkg:
-
-```
-pkg install age
-```
-
-Help from new packagers is very welcome.
+| sylr.dev/yage | [filippo.io/age](https://github.com/FiloSottile/age)                 | [sylr.dev/yaml/age/v3](https://github.com/sylr/go-yaml-age)           | [sylr.dev/yaml/v3](https://github.com/sylr/go-yaml)               |
+|:-------------:|:--------------------------------------------------------------------:|:---------------------------------------------------------------------:|:-----------------------------------------------------------------:|
+| v0.0.0        | [31e0d226807f](https://github.com/FiloSottile/age/tree/31e0d226807f) | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [5fe289210a56](https://github.com/sylr/go-yaml/tree/5fe289210a56) |
+| v0.0.1        | [31e0d226807f](https://github.com/FiloSottile/age/tree/31e0d226807f) | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [5fe289210a56](https://github.com/sylr/go-yaml/tree/5fe289210a56) |
+| v0.0.2        | [31e0d226807f](https://github.com/FiloSottile/age/tree/31e0d226807f) | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [5fe289210a56](https://github.com/sylr/go-yaml/tree/5fe289210a56) |
+| v0.0.3        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| v0.0.4        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| next          | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
