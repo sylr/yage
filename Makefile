@@ -38,9 +38,6 @@ GO_CROSSBUILD_PLATFORMS                  += netbsd/386 netbsd/amd64 netbsd/arm n
 GO_CROSSBUILD_PLATFORMS                  += plan9/386 plan9/amd64 plan9/arm plan9/arm/v7 plan9/arm/v6
 GO_CROSSBUILD_PLATFORMS                  += darwin/amd64 darwin/arm64
 GO_CROSSBUILD_PLATFORMS                  += dragonfly/amd64 illumos/amd64 solaris/amd64
-ifeq ($(GOOS),linux)
-GO_CROSSBUILD_PLATFORMS                  += android/386 android/amd64 android/arm android/arm64
-endif # $(GOOS)
 GO_CROSSBUILD_WINDOWS_PLATFORMS          := windows/amd64 windows/386 windows/arm
 
 GO_CROSSBUILD_386_PLATFORMS              := $(filter %/386,$(GO_CROSSBUILD_PLATFORMS))
