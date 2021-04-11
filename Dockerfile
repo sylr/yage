@@ -19,15 +19,17 @@ COPY . .
 FROM --platform=$BUILDPLATFORM go AS builder
 
 ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+# Switch shell to bash
+SHELL ["bash", "-c"]
 
 # Run a git command otherwise git describe in the Makefile could report a dirty git dir
 RUN git diff --exit-code || true
 
-RUN ["/bin/bash", "-c", "make build \
-GOOS=$(cut -d '/' -f1 <<<\"$TARGETPLATFORM\") \
-GOARCH=$(cut -d '/' -f2 <<<\"$TARGETPLATFORM\") \
-GOARM=$(cut -d '/' -f3 <<<\"$TARGETPLATFORM\" | sed \"s/^v//\") \
-GO_BUILD_TARGET=dist/$TARGETPLATFORM/yage"]
+RUN make build GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT/v/} GO_BUILD_TARGET=dist/${TARGETPLATFORM}/yage
 
 # -----------------------------------------------------------------------------
 
