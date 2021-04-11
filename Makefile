@@ -35,85 +35,85 @@ else
 GO_BUILD_LDFLAGS_OPTIMS  += -s -w
 endif # $(DEBUG)
 
-GO_BUILD_FLAGS_TARGET                    := .go-build-flags
-GO_CROSSBUILD_PLATFORMS                  ?= linux/386 linux/amd64 linux/arm linux/arm64 linux/arm/v7 linux/arm/v6 \
-                                            linux/mips linux/mips/softfloat linux/mips64 linux/mips64le linux/mipsle \
-                                            linux/riscv64 linux/s390x \
-                                            freebsd/386 freebsd/amd64 freebsd/arm freebsd/arm64 freebsd/arm/v7 freebsd/arm/v6 \
-                                            openbsd/386 openbsd/amd64 openbsd/arm openbsd/arm64 openbsd/arm/v7 openbsd/arm/v6 \
-                                            openbsd/mips64 \
-                                            netbsd/386 netbsd/amd64 netbsd/arm netbsd/arm64 netbsd/arm/v7 netbsd/arm/v6 \
-                                            plan9/386 plan9/amd64 plan9/arm plan9/arm/v7 plan9/arm/v6 \
-                                            darwin/amd64 darwin/arm64 \
-                                            dragonfly/amd64 illumos/amd64 solaris/amd64
-GO_CROSSBUILD_WINDOWS_PLATFORMS          := windows/amd64 windows/386 windows/arm
+GO_BUILD_FLAGS_TARGET           := .go-build-flags
+GO_CROSSBUILD_WINDOWS_PLATFORMS := windows/amd64 windows/386 windows/arm
+GO_CROSSBUILD_PLATFORMS         ?= linux/386 linux/amd64 linux/arm linux/arm64 linux/arm/v7 linux/arm/v6 \
+                                   linux/mips linux/mips/softfloat linux/mips64 linux/mips64le linux/mipsle \
+                                   linux/riscv64 linux/s390x \
+                                   freebsd/386 freebsd/amd64 freebsd/arm freebsd/arm64 freebsd/arm/v7 freebsd/arm/v6 \
+                                   openbsd/386 openbsd/amd64 openbsd/arm openbsd/arm64 openbsd/arm/v7 openbsd/arm/v6 \
+                                   openbsd/mips64 \
+                                   netbsd/386 netbsd/amd64 netbsd/arm netbsd/arm64 netbsd/arm/v7 netbsd/arm/v6 \
+                                   plan9/386 plan9/amd64 plan9/arm plan9/arm/v7 plan9/arm/v6 \
+                                   darwin/amd64 darwin/arm64 \
+                                   dragonfly/amd64 illumos/amd64 solaris/amd64
 
-GO_CROSSBUILD_386_PLATFORMS              := $(filter %/386,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_AMD64_PLATFORMS            := $(filter %/amd64,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_ARM_PLATFORMS              := $(filter %/arm,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_ARM64_PLATFORMS            := $(filter %/arm64,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_ARMV6_PLATFORMS            := $(filter %/arm/v6,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_ARMV7_PLATFORMS            := $(filter %/arm/v7,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_MIPS_PLATFORMS             := $(filter %/mips,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_MIPSLE_PLATFORMS           := $(filter %/mipsle,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_MIPS64_PLATFORMS           := $(filter %/mips64,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_MIPS64LE_PLATFORMS         := $(filter %/mips64le,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_MIPSSOFTFLOAT_PLATFORMS    := $(filter %/mips/softfloat,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_RISCV64_PLATFORMS          := $(filter %/riscv64,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_S390X_PLATFORMS            := $(filter %/s390x,$(GO_CROSSBUILD_PLATFORMS))
-GO_CROSSBUILD_WINDOWS_PLATFORMS          := $(filter windows/%,$(GO_CROSSBUILD_WINDOWS_PLATFORMS))
+GO_CROSSBUILD_386_PLATFORMS           := $(filter %/386,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_AMD64_PLATFORMS         := $(filter %/amd64,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_ARM_PLATFORMS           := $(filter %/arm,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_ARM64_PLATFORMS         := $(filter %/arm64,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_ARMV6_PLATFORMS         := $(filter %/arm/v6,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_ARMV7_PLATFORMS         := $(filter %/arm/v7,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_MIPS_PLATFORMS          := $(filter %/mips,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_MIPSLE_PLATFORMS        := $(filter %/mipsle,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_MIPS64_PLATFORMS        := $(filter %/mips64,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_MIPS64LE_PLATFORMS      := $(filter %/mips64le,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_MIPSSOFTFLOAT_PLATFORMS := $(filter %/mips/softfloat,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_RISCV64_PLATFORMS       := $(filter %/riscv64,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_S390X_PLATFORMS         := $(filter %/s390x,$(GO_CROSSBUILD_PLATFORMS))
+GO_CROSSBUILD_WINDOWS_PLATFORMS       := $(filter windows/%,$(GO_CROSSBUILD_WINDOWS_PLATFORMS))
 
-GO_CROSSBUILD_386_TARGET_PATTERN         := dist/yage-$(GIT_VERSION)-%-386
-GO_CROSSBUILD_AMD64_TARGET_PATTERN       := dist/yage-$(GIT_VERSION)-%-amd64
-GO_CROSSBUILD_ARM_TARGET_PATTERN         := dist/yage-$(GIT_VERSION)-%-arm
-GO_CROSSBUILD_ARM64_TARGET_PATTERN       := dist/yage-$(GIT_VERSION)-%-arm64
-GO_CROSSBUILD_ARMV6_TARGET_PATTERN       := dist/yage-$(GIT_VERSION)-%-armv6
-GO_CROSSBUILD_ARMV7_TARGET_PATTERN       := dist/yage-$(GIT_VERSION)-%-armv7
-GO_CROSSBUILD_MIPS_TARGET_PATTERN        := dist/yage-$(GIT_VERSION)-%-mips
-GO_CROSSBUILD_MIPSLE_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-mipsle
-GO_CROSSBUILD_MIPS64_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-mips64
-GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-mips64le
-GO_CROSSBUILD_RISCV64_TARGET_PATTERN     := dist/yage-$(GIT_VERSION)-%-riscv64
-GO_CROSSBUILD_S390X_TARGET_PATTERN       := dist/yage-$(GIT_VERSION)-%-s390x
-GO_CROSSBUILD_WINDOWS_TARGET_PATTERN     := dist/yage-$(GIT_VERSION)-windows-%.exe
+GO_CROSSBUILD_386_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-386
+GO_CROSSBUILD_AMD64_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-amd64
+GO_CROSSBUILD_ARM_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-arm
+GO_CROSSBUILD_ARM64_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-arm64
+GO_CROSSBUILD_ARMV6_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-armv6
+GO_CROSSBUILD_ARMV7_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-armv7
+GO_CROSSBUILD_MIPS_TARGET_PATTERN     := dist/yage-$(GIT_VERSION)-%-mips
+GO_CROSSBUILD_MIPSLE_TARGET_PATTERN   := dist/yage-$(GIT_VERSION)-%-mipsle
+GO_CROSSBUILD_MIPS64_TARGET_PATTERN   := dist/yage-$(GIT_VERSION)-%-mips64
+GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN := dist/yage-$(GIT_VERSION)-%-mips64le
+GO_CROSSBUILD_RISCV64_TARGET_PATTERN  := dist/yage-$(GIT_VERSION)-%-riscv64
+GO_CROSSBUILD_S390X_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-s390x
+GO_CROSSBUILD_WINDOWS_TARGET_PATTERN  := dist/yage-$(GIT_VERSION)-windows-%.exe
 
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/386,$(GO_CROSSBUILD_386_TARGET_PATTERN),$(GO_CROSSBUILD_386_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/amd64,$(GO_CROSSBUILD_AMD64_TARGET_PATTERN),$(GO_CROSSBUILD_AMD64_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/arm,$(GO_CROSSBUILD_ARM_TARGET_PATTERN),$(GO_CROSSBUILD_ARM_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/arm64,$(GO_CROSSBUILD_ARM64_TARGET_PATTERN),$(GO_CROSSBUILD_ARM64_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/arm/v6,$(GO_CROSSBUILD_ARMV6_TARGET_PATTERN),$(GO_CROSSBUILD_ARMV6_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/arm/v7,$(GO_CROSSBUILD_ARMV7_TARGET_PATTERN),$(GO_CROSSBUILD_ARMV7_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/mips,$(GO_CROSSBUILD_MIPS_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/mipsle,$(GO_CROSSBUILD_MIPSLE_TARGET_PATTERN),$(GO_CROSSBUILD_MIPSLE_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/mips64,$(GO_CROSSBUILD_MIPS64_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS64_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/mips64le,$(GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS64LE_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/mips/softfloat,$(GO_CROSSBUILD_LINUX_MIPS_TARGET_PATTERN),$(GO_CROSSBUILD_LINUX_MIPS_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/riscv64,$(GO_CROSSBUILD_RISCV64_TARGET_PATTERN),$(GO_CROSSBUILD_RISCV64_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst %/s390x,$(GO_CROSSBUILD_S390X_TARGET_PATTERN),$(GO_CROSSBUILD_S390X_PLATFORMS))
-GO_CROSSBUILD_TARGETS                    += $(patsubst windows/%,$(GO_CROSSBUILD_WINDOWS_TARGET_PATTERN),$(GO_CROSSBUILD_WINDOWS_PLATFORMS))
+GO_CROSSBUILD_TARGETS := $(patsubst %/386,$(GO_CROSSBUILD_386_TARGET_PATTERN),$(GO_CROSSBUILD_386_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/amd64,$(GO_CROSSBUILD_AMD64_TARGET_PATTERN),$(GO_CROSSBUILD_AMD64_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/arm,$(GO_CROSSBUILD_ARM_TARGET_PATTERN),$(GO_CROSSBUILD_ARM_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/arm64,$(GO_CROSSBUILD_ARM64_TARGET_PATTERN),$(GO_CROSSBUILD_ARM64_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/arm/v6,$(GO_CROSSBUILD_ARMV6_TARGET_PATTERN),$(GO_CROSSBUILD_ARMV6_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/arm/v7,$(GO_CROSSBUILD_ARMV7_TARGET_PATTERN),$(GO_CROSSBUILD_ARMV7_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/mips,$(GO_CROSSBUILD_MIPS_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/mipsle,$(GO_CROSSBUILD_MIPSLE_TARGET_PATTERN),$(GO_CROSSBUILD_MIPSLE_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/mips64,$(GO_CROSSBUILD_MIPS64_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS64_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/mips64le,$(GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN),$(GO_CROSSBUILD_MIPS64LE_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/mips/softfloat,$(GO_CROSSBUILD_LINUX_MIPS_TARGET_PATTERN),$(GO_CROSSBUILD_LINUX_MIPS_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/riscv64,$(GO_CROSSBUILD_RISCV64_TARGET_PATTERN),$(GO_CROSSBUILD_RISCV64_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst %/s390x,$(GO_CROSSBUILD_S390X_TARGET_PATTERN),$(GO_CROSSBUILD_S390X_PLATFORMS))
+GO_CROSSBUILD_TARGETS += $(patsubst windows/%,$(GO_CROSSBUILD_WINDOWS_TARGET_PATTERN),$(GO_CROSSBUILD_WINDOWS_PLATFORMS))
 
-GO_BUILD_EXTLDFLAGS      := $(strip $(GO_BUILD_EXTLDFLAGS))
-GO_BUILD_TAGS            := $(strip $(GO_BUILD_TAGS))
-GO_BUILD_TARGET_DEPS     := $(strip $(GO_BUILD_TARGET_DEPS))
-GO_BUILD_FLAGS           := $(strip $(GO_BUILD_FLAGS))
-GO_BUILD_LDFLAGS_OPTIMS  := $(strip $(GO_BUILD_LDFLAGS_OPTIMS))
-GO_BUILD_LDFLAGS         := -ldflags '$(GO_BUILD_LDFLAGS_OPTIMS) -X main.Version=$(GIT_VERSION) -extldflags "$(GO_BUILD_EXTLDFLAGS)"'
+GO_BUILD_EXTLDFLAGS     := $(strip $(GO_BUILD_EXTLDFLAGS))
+GO_BUILD_TAGS           := $(strip $(GO_BUILD_TAGS))
+GO_BUILD_TARGET_DEPS    := $(strip $(GO_BUILD_TARGET_DEPS))
+GO_BUILD_FLAGS          := $(strip $(GO_BUILD_FLAGS))
+GO_BUILD_LDFLAGS_OPTIMS := $(strip $(GO_BUILD_LDFLAGS_OPTIMS))
+GO_BUILD_LDFLAGS        := -ldflags '$(GO_BUILD_LDFLAGS_OPTIMS) -X main.Version=$(GIT_VERSION) -extldflags "$(GO_BUILD_EXTLDFLAGS)"'
 
-GO_TOOLS_GOLANGCI_LINT  ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
+GO_TOOLS_GOLANGCI_LINT ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 
-DOCKER_BUILD_IMAGE       ?= ghcr.io/sylr/yage
-DOCKER_BUILD_VERSION     ?= $(GIT_VERSION)
-DOCKER_BUILD_GO_VERSION  ?= 1.16
-DOCKER_BUILD_LABELS       = --label org.opencontainers.image.title=yage
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.description="Azure metrics exporter for prometheus"
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.url="https://github.com/sylr/yage"
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.source="https://github.com/sylr/yage"
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.revision=$(GIT_REVISION)
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.version=$(GIT_VERSION)
-DOCKER_BUILD_LABELS      += --label org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
-DOCKER_BUILD_BUILD_ARGS  ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
-DOCKER_BUILDX_PLATFORMS  ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
-DOCKER_BUILDX_CACHE      ?= /tmp/.buildx-cache
+DOCKER_BUILD_IMAGE      ?= ghcr.io/sylr/yage
+DOCKER_BUILD_VERSION    ?= $(GIT_VERSION)
+DOCKER_BUILD_GO_VERSION ?= 1.16
+DOCKER_BUILD_LABELS      = --label org.opencontainers.image.title=yage
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.description="age+yaml"
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.url="https://github.com/sylr/yage"
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.source="https://github.com/sylr/yage"
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.revision=$(GIT_REVISION)
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.version=$(GIT_VERSION)
+DOCKER_BUILD_LABELS     += --label org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+DOCKER_BUILD_BUILD_ARGS ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
+DOCKER_BUILDX_PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+DOCKER_BUILDX_CACHE     ?= /tmp/.buildx-cache
 
 # ------------------------------------------------------------------------------
 
