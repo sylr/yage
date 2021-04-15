@@ -38,7 +38,7 @@ func (f *multiFlag) Set(value string) error {
 }
 
 func (f *multiFlag) Type() string {
-	return "multiFlag"
+	return "string"
 }
 
 func (f *multiFlag) Append(value string) error {
