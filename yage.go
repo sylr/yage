@@ -139,6 +139,9 @@ func main() {
 	if versionFlag {
 		if Version != "" {
 			fmt.Printf("%s (%s)\n", Version, runtime.Version())
+			for _, mod := range getModsVersion() {
+				fmt.Fprintf(os.Stderr, "%s\n", mod)
+			}
 			return
 		}
 		if buildInfo, ok := debug.ReadBuildInfo(); ok {
@@ -569,4 +572,18 @@ func (l *lazyOpener) Close() error {
 
 func logFatalf(format string, v ...interface{}) {
 	_log.Fatalf(format, v...)
+}
+
+func getModsVersion() (mods []string) {
+	info, ok := debug.ReadBuildInfo()
+
+	if !ok {
+		return
+	}
+
+	for _, mod := range info.Deps {
+		mods = append(mods, fmt.Sprintf("%s: %s", mod.Path, mod.Version))
+	}
+
+	return
 }
