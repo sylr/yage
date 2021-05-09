@@ -107,4 +107,4 @@ Upstreams
 | v0.0.2        | [31e0d226807f](https://github.com/FiloSottile/age/tree/31e0d226807f) | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [5fe289210a56](https://github.com/sylr/go-yaml/tree/5fe289210a56) |
 | v0.0.3        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
 | v0.0.4        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
-| next          | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| next          | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/fbe22b6781da) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
