@@ -7,7 +7,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
-	sylr.dev/yaml/age/v3 v3.0.0-20210509151642-fbe22b6781da
+	sylr.dev/yaml/age/v3 v3.0.0-20210907063746-ab99b234209c
 	sylr.dev/yaml/v3 v3.0.0-20210127132132-941109e4f08c
 )
 
