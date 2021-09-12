@@ -13,15 +13,26 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
 	"filippo.io/age"
 	"filippo.io/age/agessh"
+	"filippo.io/age/armor"
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/ssh"
 )
+
+// stdinInUse is set in main. It's a singleton like os.Stdin.
+var stdinInUse bool
+
+type gitHubRecipientError struct {
+	username string
+}
+
+func (gitHubRecipientError) Error() string {
+	return `"github:" recipients were removed from the design`
+}
 
 func parseRecipient(arg string) (age.Recipient, error) {
 	switch {
@@ -31,8 +42,7 @@ func parseRecipient(arg string) (age.Recipient, error) {
 		return agessh.ParseRecipient(arg)
 	case strings.HasPrefix(arg, "github:"):
 		name := strings.TrimPrefix(arg, "github:")
-		return nil, fmt.Errorf(`"github:" recipients were removed from the design.`+"\n"+
-			"Instead, use recipient files like\n\n    curl -O https://github.com/%s.keys\n    yage -R %s.keys\n\n", name, name)
+		return nil, gitHubRecipientError{name}
 	}
 
 	return nil, fmt.Errorf("unknown recipient type: %q", arg)
@@ -73,7 +83,7 @@ func parseRecipientsFile(name string) ([]age.Recipient, error) {
 		if err != nil {
 			if t, ok := sshKeyType(line); ok {
 				// Skip unsupported but valid SSH public keys with a warning.
-				log.Printf("Warning: recipients file %q: ignoring unsupported SSH key of type %q at line %d", name, t, n)
+				warningf("recipients file %q: ignoring unsupported SSH key of type %q at line %d", name, t, n)
 				continue
 			}
 			// Hide the error since it might unintentionally leak the contents
@@ -115,8 +125,8 @@ func sshKeyType(s string) (string, bool) {
 }
 
 // parseIdentitiesFile parses a file that contains age or SSH keys. It returns
-// one of *age.X25519Identity, *agessh.RSAIdentity, *agessh.Ed25519Identity, or
-// *agessh.EncryptedSSHIdentity.
+// one or more of *age.X25519Identity, *agessh.RSAIdentity, *agessh.Ed25519Identity,
+// *agessh.EncryptedSSHIdentity, or *EncryptedIdentity.
 func parseIdentitiesFile(name string) ([]age.Identity, error) {
 	var f *os.File
 	if name == "-" {
@@ -135,8 +145,40 @@ func parseIdentitiesFile(name string) ([]age.Identity, error) {
 	}
 
 	b := bufio.NewReader(f)
-	const pemHeader = "-----BEGIN"
-	if peeked, _ := b.Peek(len(pemHeader)); string(peeked) == pemHeader {
+	p, _ := b.Peek(14) // length of "age-encryption" and "-----BEGIN AGE"
+	peeked := string(p)
+
+	switch {
+	// An age encrypted file, plain or armored.
+	case peeked == "age-encryption" || peeked == "-----BEGIN AGE":
+		var r io.Reader = b
+		if peeked == "-----BEGIN AGE" {
+			r = armor.NewReader(r)
+		}
+		const privateKeySizeLimit = 1 << 24 // 16 MiB
+		contents, err := ioutil.ReadAll(io.LimitReader(r, privateKeySizeLimit))
+		if err != nil {
+			return nil, fmt.Errorf("failed to read %q: %v", name, err)
+		}
+		if len(contents) == privateKeySizeLimit {
+			return nil, fmt.Errorf("failed to read %q: file too long", name)
+		}
+		return []age.Identity{&EncryptedIdentity{
+			Contents: contents,
+			Passphrase: func() (string, error) {
+				pass, err := readPassphrase(fmt.Sprintf("Enter passphrase for identity file %q:", name))
+				if err != nil {
+					return "", fmt.Errorf("could not read passphrase: %v", err)
+				}
+				return string(pass), nil
+			},
+			NoMatchWarning: func() {
+				warningf("encrypted identity file %q didn't match file's recipients", name)
+			},
+		}}, nil
+
+	// Another PEM file, possibly an SSH private key.
+	case strings.HasPrefix(peeked, "-----BEGIN"):
 		const privateKeySizeLimit = 1 << 14 // 16 KiB
 		contents, err := ioutil.ReadAll(io.LimitReader(b, privateKeySizeLimit))
 		if err != nil {
@@ -146,13 +188,15 @@ func parseIdentitiesFile(name string) ([]age.Identity, error) {
 			return nil, fmt.Errorf("failed to read %q: file too long", name)
 		}
 		return parseSSHIdentity(name, contents)
-	}
 
-	ids, err := age.ParseIdentities(b)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read %q: %v", name, err)
+	// An unencrypted age identity file.
+	default:
+		ids, err := age.ParseIdentities(b)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read %q: %v", name, err)
+		}
+		return ids, nil
 	}
-	return ids, nil
 }
 
 func parseSSHIdentity(name string, pemBytes []byte) ([]age.Identity, error) {
@@ -166,8 +210,7 @@ func parseSSHIdentity(name string, pemBytes []byte) ([]age.Identity, error) {
 			}
 		}
 		passphrasePrompt := func() ([]byte, error) {
-			fmt.Fprintf(os.Stderr, "Enter passphrase for %q: ", name)
-			pass, err := readPassphrase()
+			pass, err := readPassphrase(fmt.Sprintf("Enter passphrase for %q:", name))
 			if err != nil {
 				return nil, fmt.Errorf("could not read passphrase for %q: %v", name, err)
 			}
