@@ -222,16 +222,19 @@ func main() {
 
 	if outputName != "" && outputName != "-" {
 		overwrite := false
-		istat, err := os.Stat(inputName)
-		if err != nil {
-			logFatalf("Error: failed to open input file %q: %v", inputName, err)
-		}
-		ostat, err := os.Stat(outputName)
-		if rekeyFlag && err == nil && os.SameFile(istat, ostat) {
-			// in rekey mode we allow to overwrite the input file
-			overwrite = true
-		} else if err == nil {
-			logFatalf("Error: output file %q exists", outputName)
+
+		if !stdinInUse {
+			istat, err := os.Stat(inputName)
+			if err != nil {
+				logFatalf("Error: failed to open input file %q: %v", inputName, err)
+			}
+			ostat, err := os.Stat(outputName)
+			if rekeyFlag && err == nil && os.SameFile(istat, ostat) {
+				// in rekey mode we allow to overwrite the input file
+				overwrite = true
+			} else if err == nil {
+				logFatalf("Error: output file %q exists", outputName)
+			}
 		}
 		f := newLazyOpener(outputName, overwrite)
 		defer f.Close()
