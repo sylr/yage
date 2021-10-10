@@ -600,20 +600,20 @@ func logFatalf(format string, v ...interface{}) {
 }
 
 func errorf(format string, v ...interface{}) {
-	log.Printf("age: error: "+format, v...)
-	log.Fatalf("age: report unexpected or unhelpful errors at https://filippo.io/age/report")
+	log.Printf("yage: error: "+format, v...)
+	log.Fatalf("yage: report unexpected or unhelpful errors at https://github.com/sylr/yage/issues")
 }
 
 func warningf(format string, v ...interface{}) {
-	log.Printf("age: warning: "+format, v...)
+	log.Printf("yage: warning: "+format, v...)
 }
 
 func errorWithHint(error string, hints ...string) {
-	log.Printf("age: error: %s", error)
+	log.Printf("yage: error: %s", error)
 	for _, hint := range hints {
 		log.Printf("age: hint: %s", hint)
 	}
-	log.Fatalf("age: report unexpected or unhelpful errors at https://filippo.io/age/report")
+	log.Fatalf("yage: report unexpected or unhelpful errors at https://github.com/sylr/yage/issues")
 }
 
 func getModsVersion() (mods []string) {
