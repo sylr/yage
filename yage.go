@@ -113,17 +113,18 @@ func main() {
 	}
 
 	var (
-		outFlag                        string
-		decryptFlag, armorFlag         bool
-		passFlag, versionFlag          bool
-		yamlFlag, yamlDiscardNotagFlag bool
-		rekeyFlag                      bool
-		recipientFlags, identityFlags  multiFlag
-		recipientsFileFlags            multiFlag
+		outFlag                             string
+		decryptFlag, encryptFlag, armorFlag bool
+		passFlag, versionFlag               bool
+		yamlFlag, yamlDiscardNotagFlag      bool
+		rekeyFlag                           bool
+		recipientFlags, identityFlags       multiFlag
+		recipientsFileFlags                 multiFlag
 	)
 
 	flag.BoolVar(&versionFlag, "version", false, "print the version")
 	flag.BoolVarP(&decryptFlag, "decrypt", "d", false, "decrypt the input")
+	flag.BoolVarP(&encryptFlag, "encrypt", "e", false, "encrypt the input")
 	flag.BoolVar(&rekeyFlag, "rekey", false, "rekey the input")
 	flag.BoolVarP(&passFlag, "passphrase", "p", false, "use a passphrase")
 	flag.StringVarP(&outFlag, "output", "o", "", "output to `FILE` (default stdout)")
@@ -156,10 +157,6 @@ func main() {
 			"age accepts a single optional argument for the input file.")
 	}
 
-	if len(identityFlags) > 0 {
-		decryptFlag = true
-	}
-
 	switch {
 	case rekeyFlag:
 	case decryptFlag:
@@ -180,11 +177,11 @@ func main() {
 				"Did you mean to use -i/--identity to specify a private key?")
 		}
 	default: // encrypt
-		if len(identityFlags) > 0 {
-			logFatalf("Error: -i/--identity can't be used in encryption mode.\n" +
+		if len(identityFlags) > 0 && !encryptFlag {
+			logFatalf("Error: -i/--identity can't be used in encryption mode unless symmetric encryption is explicitly selected with -e/--encrypt.\n" +
 				"Did you forget to specify -d/--decrypt?")
 		}
-		if len(recipientFlags) == 0 && len(recipientsFileFlags) == 0 && !passFlag {
+		if len(recipientFlags)+len(recipientsFileFlags)+len(identityFlags) == 0 && !passFlag {
 			logFatalf("Error: missing recipients.\n" +
 				"Did you forget to specify -r/--recipient, -R/--recipients-file or -p/--passphrase?")
 		}
@@ -193,6 +190,9 @@ func main() {
 		}
 		if len(recipientsFileFlags) > 0 && passFlag {
 			logFatalf("Error: -p/--passphrase can't be combined with -R/--recipients-file.")
+		}
+		if len(identityFlags) > 0 && passFlag {
+			errorf("-p/--passphrase can't be combined with -i/--identity")
 		}
 		if yamlFlag {
 			armorFlag = true
