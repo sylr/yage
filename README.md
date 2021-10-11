@@ -9,6 +9,9 @@ This project contains **no cryptographic logic**, all of that remains
 `yage` encrypts YAML key values in place using YAML tag `!crypto/age` as marker.
 It only support encoding strings.
 
+Tag / attributes
+----------------
+
 ```yaml
 ---
 simpletag: !crypto/age simple value
@@ -17,8 +20,26 @@ singlequoted: !crypto/age:SingleQuoted single quoted value
 literal: !crypto/age:Literal literal value
 flowed: !crypto/age:Flow flowed value
 folded: !crypto/age:Folded folded value
-# the NoTag attribute will cause yage to drop the tag when decrypting
-notag: !crypto/age:Literal,NoTag literal untagged value
+notag: !crypto/age:Literal,NoTag literal untagged value # the NoTag attribute will cause yage to drop the tag when decrypting
+```
+
+Example
+-------
+
+```yaml
+simpletag: !crypto/age simple value
+```
+
+```shell
+$ yage -R ~/.ssh/id_ed25519.pub --yaml < simple.yaml
+simpletag: !crypto/age |-
+  -----BEGIN AGE ENCRYPTED FILE-----
+  YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNzaC1lZDI1NTE5IEcwQmFrQSBHdk9o
+  V3dDbTRSNlVuei82RDJlRnNaMnduTWpLSkZEbVlJdmdUdDdJNjJvCkVZdDZ6cTRu
+  QWplUythdERuNldlTzJMR0p2VjI3UGx2OWt4Q3VaMDZXK0kKLS0tIG9ZZTZ4K2FM
+  c2VKVXlLamJndE1JaDN5SkdwTjEyR0FIeXFHTEZDZGZWSGcKclDEC1Xo41AdhLa2
+  rbzwJeC4KyynjhJbOvwRlCBJV6K479LbfLSicgKjk9g=
+  -----END AGE ENCRYPTED FILE-----
 ```
 
 ⚠️ YAML formatting may be modified when encrypting/decrypting in place due to limitations
@@ -107,4 +128,7 @@ Upstreams
 | v0.0.2        | [31e0d226807f](https://github.com/FiloSottile/age/tree/31e0d226807f) | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [5fe289210a56](https://github.com/sylr/go-yaml/tree/5fe289210a56) |
 | v0.0.3        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
 | v0.0.4        | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/a2c1da7b8f3b) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
-| next          | [v1.0.0-rc.1](https://github.com/FiloSottile/age/tree/v1.0.0-rc.1)   | [a2c1da7b8f3b](https://github.com/sylr/go-yaml-age/tree/fbe22b6781da) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| v1.0.0        | [v1.0.0](https://github.com/FiloSottile/age/tree/v1.0.0)             | [ab99b234209c](https://github.com/sylr/go-yaml-age/tree/ab99b234209c) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| v1.0.1        | [v1.0.0](https://github.com/FiloSottile/age/tree/v1.0.0)             | [ab99b234209c](https://github.com/sylr/go-yaml-age/tree/ab99b234209c) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| v1.0.2        | [v1.0.0](https://github.com/FiloSottile/age/tree/v1.0.0)             | [ab99b234209c](https://github.com/sylr/go-yaml-age/tree/ab99b234209c) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
+| next          | [v1.0.0](https://github.com/FiloSottile/age/tree/v1.0.0)             | [ab99b234209c](https://github.com/sylr/go-yaml-age/tree/ab99b234209c) | [941109e4f08c](https://github.com/sylr/go-yaml/tree/941109e4f08c) |
