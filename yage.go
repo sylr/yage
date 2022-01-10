@@ -12,7 +12,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"runtime"
@@ -427,7 +426,7 @@ func addOpenSSHIdentities(identities *[]age.Identity) {
 		os.ExpandEnv("$HOME/.ssh/id_rsa"),
 		os.ExpandEnv("$HOME/.ssh/id_ed25519"),
 	} {
-		content, err := ioutil.ReadFile(path)
+		content, err := os.ReadFile(path)
 		if err != nil {
 			continue
 		}
