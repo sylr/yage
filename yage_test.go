@@ -11,7 +11,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +23,7 @@ import (
 func TestVectors(t *testing.T) {
 	var defaultIDs []age.Identity
 
-	password, err := ioutil.ReadFile("testdata/default_password.txt")
+	password, err := os.ReadFile("testdata/default_password.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func TestVectors(t *testing.T) {
 			if err == nil {
 				identities = ids
 			}
-			password, err := ioutil.ReadFile("testdata/" + name + "_password.txt")
+			password, err := os.ReadFile("testdata/" + name + "_password.txt")
 			if err == nil {
 				p := strings.TrimSpace(string(password))
 				i, err := age.NewScryptIdentity(p)
@@ -86,7 +86,7 @@ func TestVectors(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				out, err := ioutil.ReadAll(r)
+				out, err := io.ReadAll(r)
 				if err != nil {
 					t.Fatal(err)
 				}
