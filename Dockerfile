@@ -1,8 +1,8 @@
 # vi: ft=Dockerfile:
 
-ARG GO_VERSION=1.17
+ARG GO_VERSION=1.18
 
-FROM --platform=$BUILDPLATFORM golang:$GO_VERSION AS go
+FROM --platform=$BUILDPLATFORM golang:$GO_VERSION AS builder
 
 RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y build-essential git
 
@@ -13,10 +13,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-
-# -----------------------------------------------------------------------------
-
-FROM --platform=$BUILDPLATFORM go AS builder
 
 ARG TARGETPLATFORM
 ARG TARGETOS
