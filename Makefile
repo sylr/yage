@@ -103,7 +103,7 @@ GO_TOOLS_GOLANGCI_LINT ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 
 DOCKER_BUILD_IMAGE      ?= ghcr.io/sylr/yage
 DOCKER_BUILD_VERSION    ?= $(GIT_VERSION)
-DOCKER_BUILD_GO_VERSION ?= 1.18
+DOCKER_BUILD_GO_VERSION ?= 1.19
 DOCKER_BUILD_LABELS      = --label org.opencontainers.image.title=yage
 DOCKER_BUILD_LABELS     += --label org.opencontainers.image.description="age+yaml"
 DOCKER_BUILD_LABELS     += --label org.opencontainers.image.url="https://github.com/sylr/yage"

@@ -405,7 +405,6 @@ func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) {
 
 		// Encrypt the Nodes with the !crypto/age tag
 		encNode, err := yage.MarshalYAML(&node, recipients)
-
 		if err != nil {
 			logFatalf("Error: %v", err)
 		}
@@ -566,7 +565,7 @@ func newLazyOpener(name string, overwrite bool) io.WriteCloser {
 func (l *lazyOpener) Write(p []byte) (n int, err error) {
 	if l.f == nil && l.err == nil {
 		oFlags := os.O_WRONLY | os.O_CREATE
-		perms := os.FileMode(0660)
+		perms := os.FileMode(0o660)
 
 		if l.overwrite {
 			stat, err := os.Stat(l.name)
