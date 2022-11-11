@@ -368,7 +368,7 @@ dup: *password # alias comment`),
 			}
 
 			// re-encrypt data for second pass
-			encryptYAML(recs, decryptOut, encryptOut)
+			encryptYAML(recs, decryptOut, encryptOut, false)
 
 			// assign encrypted result to test input
 			input = encryptOut.String()

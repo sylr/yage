@@ -61,6 +61,7 @@ Options:
         --version
     -y, --yaml                  Treat input as YAML and perform in-place encryption / decryption.
         --yaml-discard-notag    Does not honour NoTag attribute when decrypting (useful for re-keying).
+		--yaml-update      		Updates a yaml file encrypting unencrypted values and leaving encrypted values untouched.
         --rekey                 Decrypt the input and encrypt it with the given recipients.
                                 In re-keying mode the input and output can be the same file.
                                 In YAML mode it implies --yaml-discard-notag. By default if no -o option
@@ -112,13 +113,13 @@ func main() {
 	}
 
 	var (
-		outFlag                             string
-		decryptFlag, encryptFlag, armorFlag bool
-		passFlag, versionFlag               bool
-		yamlFlag, yamlDiscardNotagFlag      bool
-		rekeyFlag                           bool
-		recipientFlags, identityFlags       multiFlag
-		recipientsFileFlags                 multiFlag
+		outFlag                                        string
+		decryptFlag, encryptFlag, armorFlag            bool
+		passFlag, versionFlag                          bool
+		yamlFlag, yamlDiscardNotagFlag, yamlUpdateFlag bool
+		rekeyFlag                                      bool
+		recipientFlags, identityFlags                  multiFlag
+		recipientsFileFlags                            multiFlag
 	)
 
 	flag.BoolVar(&versionFlag, "version", false, "print the version")
@@ -133,6 +134,7 @@ func main() {
 	flag.VarP(&identityFlags, "identity", "i", "identity (can be repeated)")
 	flag.BoolVarP(&yamlFlag, "yaml", "y", false, "in-place yaml encrypting/decrypting")
 	flag.BoolVar(&yamlDiscardNotagFlag, "yaml-discard-notag", false, "do not honour NoTag YAML tag attribute")
+	flag.BoolVar(&yamlUpdateFlag, "yaml-update", false, "update yaml file encrypting unencrypted values and leaving encrypted values untouched")
 	flag.Parse()
 
 	if versionFlag {
@@ -157,7 +159,7 @@ func main() {
 	}
 
 	switch {
-	case rekeyFlag:
+	case rekeyFlag, yamlUpdateFlag:
 	case decryptFlag:
 		if armorFlag {
 			logFatalf("Error: -a/--armor can't be used with -d/--decrypt.\n" +
@@ -215,7 +217,7 @@ func main() {
 	}
 
 	// --rekey overwrite input file if no output file given
-	if rekeyFlag && outputName == "" {
+	if (rekeyFlag || yamlUpdateFlag) && outputName == "" {
 		outputName = inputName
 	}
 
@@ -228,7 +230,7 @@ func main() {
 				logFatalf("Error: failed to open input file %q: %v", inputName, err)
 			}
 			ostat, err := os.Stat(outputName)
-			if rekeyFlag && err == nil && os.SameFile(istat, ostat) {
+			if (rekeyFlag || yamlUpdateFlag) && err == nil && os.SameFile(istat, ostat) {
 				// in rekey mode we allow to overwrite the input file
 				overwrite = true
 			} else if err == nil {
@@ -266,7 +268,7 @@ func main() {
 		} else {
 			decrypt(identityFlags, in, outbuf)
 		}
-		encryptKeys(recipientFlags, recipientsFileFlags, identityFlags, outbuf, out, armorFlag, yamlFlag)
+		encryptKeys(recipientFlags, recipientsFileFlags, identityFlags, outbuf, out, armorFlag, yamlFlag, yamlUpdateFlag)
 	case decryptFlag:
 		if yamlFlag {
 			decryptYAML(identityFlags, in, out, yamlDiscardNotagFlag)
@@ -278,9 +280,9 @@ func main() {
 		if err != nil {
 			logFatalf("Error: %v", err)
 		}
-		encryptPass(pass, in, out, armorFlag, yamlFlag)
+		encryptPass(pass, in, out, armorFlag, yamlFlag, yamlUpdateFlag)
 	default:
-		encryptKeys(recipientFlags, recipientsFileFlags, identityFlags, in, out, armorFlag, yamlFlag)
+		encryptKeys(recipientFlags, recipientsFileFlags, identityFlags, in, out, armorFlag, yamlFlag, yamlUpdateFlag)
 	}
 }
 
@@ -310,7 +312,7 @@ func passphrasePromptForEncryption() (string, error) {
 	return p, nil
 }
 
-func encryptKeys(keys, files, identities []string, in io.Reader, out io.Writer, armor bool, yaml bool) {
+func encryptKeys(keys, files, identities []string, in io.Reader, out io.Writer, armor bool, yaml, yamlUpdate bool) {
 	var recipients []age.Recipient
 	for _, arg := range keys {
 		r, err := parseRecipient(arg)
@@ -344,13 +346,13 @@ func encryptKeys(keys, files, identities []string, in io.Reader, out io.Writer, 
 	}
 
 	if yaml {
-		encryptYAML(recipients, in, out)
+		encryptYAML(recipients, in, out, yamlUpdate)
 	} else {
 		encrypt(recipients, in, out, armor)
 	}
 }
 
-func encryptPass(pass string, in io.Reader, out io.Writer, armor bool, yaml bool) {
+func encryptPass(pass string, in io.Reader, out io.Writer, armor, yaml, yamlUpdate bool) {
 	r, err := age.NewScryptRecipient(pass)
 	if err != nil {
 		logFatalf("Error: %v", err)
@@ -358,7 +360,7 @@ func encryptPass(pass string, in io.Reader, out io.Writer, armor bool, yaml bool
 	encrypt([]age.Recipient{r}, in, out, armor)
 
 	if yaml {
-		encryptYAML([]age.Recipient{r}, in, out)
+		encryptYAML([]age.Recipient{r}, in, out, yamlUpdate)
 	} else {
 		encrypt([]age.Recipient{r}, in, out, armor)
 	}
@@ -386,14 +388,22 @@ func encrypt(recipients []age.Recipient, in io.Reader, out io.Writer, withArmor 
 	}
 }
 
-func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) {
+func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer, update bool) {
 	node := yaml.Node{}
-	w := yage.Wrapper{Value: &node}
+	w := yage.Wrapper{
+		Value:     &node,
+		NoDecrypt: !update,
+	}
 
 	decoder := yaml.NewDecoder(in)
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(2)
 	defer encoder.Close()
+
+	var marshalOpts []yage.MarshalYAMLOption
+	if update {
+		marshalOpts = append(marshalOpts, yage.NoReencrypt())
+	}
 
 	for {
 		err := decoder.Decode(&w)
@@ -404,7 +414,7 @@ func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) {
 		}
 
 		// Encrypt the Nodes with the !crypto/age tag
-		encNode, err := yage.MarshalYAML(&node, recipients)
+		encNode, err := yage.MarshalYAML(&node, recipients, marshalOpts...)
 		if err != nil {
 			logFatalf("Error: %v", err)
 		}
