@@ -137,6 +137,11 @@ func main() {
 	flag.BoolVar(&yamlUpdateFlag, "yaml-update", false, "update yaml file encrypting unencrypted values and leaving encrypted values untouched")
 	flag.Parse()
 
+	// yamlUpdateFlag implies yamlFlag
+	if yamlUpdateFlag {
+		yamlFlag = true
+	}
+
 	if versionFlag {
 		if Version != "" {
 			fmt.Printf("%s (%s)\n", Version, runtime.Version())
