@@ -400,15 +400,16 @@ func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer, update
 		NoDecrypt: update,
 	}
 
+	m := yage.Marshaler{
+		Node:        &node,
+		Recipients:  recipients,
+		NoReencrypt: update,
+	}
+
 	decoder := yaml.NewDecoder(in)
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(2)
 	defer encoder.Close()
-
-	var marshalOpts []yage.MarshalYAMLOption
-	if update {
-		marshalOpts = append(marshalOpts, yage.NoReencrypt())
-	}
 
 	for {
 		err := decoder.Decode(&w)
@@ -419,12 +420,7 @@ func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer, update
 		}
 
 		// Encrypt the Nodes with the !crypto/age tag
-		encNode, err := yage.MarshalYAML(&node, recipients, marshalOpts...)
-		if err != nil {
-			logFatalf("Error: %v", err)
-		}
-
-		err = encoder.Encode(&encNode)
+		err = encoder.Encode(&m)
 
 		if err != nil {
 			logFatalf("Error: %v", err)

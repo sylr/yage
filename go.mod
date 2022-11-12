@@ -16,4 +16,5 @@ require (
 	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
 )
 
-replace sylr.dev/yaml/age/v3 => github.com/WillAbides/go-yaml-age/v3 v3.0.0-20221111234758-587bd14ade9c
+// TODO: remove this after https://github.com/sylr/go-yaml-age/pull/13 is merged
+replace sylr.dev/yaml/age/v3 => github.com/WillAbides/go-yaml-age/v3 v3.0.0-20221112211920-5c10a0f209a6
