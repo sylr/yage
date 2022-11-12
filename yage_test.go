@@ -372,6 +372,13 @@ dup: *password # alias comment`),
 
 			// assign encrypted result to test input
 			input = encryptOut.String()
+
+			// After encrypting, the output of an update should be the same as the input
+			updateOut := bytes.NewBuffer(nil)
+			encryptYAML(recs, strings.NewReader(input), updateOut, true)
+			if updateOut.String() != input {
+				t.Errorf("Test \"%s\" failed:\nExpected:\n%sActual:\n%s", test.Description, input, updateOut.String())
+			}
 		}
 	}
 }
