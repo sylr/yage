@@ -392,7 +392,7 @@ func encryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer, update
 	node := yaml.Node{}
 	w := yage.Wrapper{
 		Value:     &node,
-		NoDecrypt: !update,
+		NoDecrypt: update,
 	}
 
 	decoder := yaml.NewDecoder(in)
