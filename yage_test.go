@@ -18,6 +18,10 @@ import (
 	"testing"
 
 	"filippo.io/age"
+
+	"sylr.dev/yage/cmd/decrypt"
+	"sylr.dev/yage/cmd/encrypt"
+	"sylr.dev/yage/utils"
 )
 
 func TestVectors(t *testing.T) {
@@ -34,7 +38,7 @@ func TestVectors(t *testing.T) {
 	}
 	defaultIDs = append(defaultIDs, i)
 
-	ids, err := parseIdentitiesFile("testdata/default_key.txt")
+	ids, err := utils.ParseIdentitiesFile("testdata/default_key.txt", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +53,7 @@ func TestVectors(t *testing.T) {
 		expectNoMatch := strings.HasPrefix(name, "nomatch_")
 		t.Run(name, func(t *testing.T) {
 			identities := defaultIDs
-			ids, err := parseIdentitiesFile("testdata/" + name + "_key.txt")
+			ids, err := utils.ParseIdentitiesFile("testdata/"+name+"_key.txt", false)
 			if err == nil {
 				identities = ids
 			}
@@ -360,7 +364,7 @@ dup: *password # alias comment`),
 			encryptOut := bytes.NewBuffer(nil)
 
 			// decrypt
-			decryptYAML([]string{"./testdata/yaml.key"}, in, decryptOut, test.DiscardNoTag)
+			decrypt.DecryptYAML([]string{"./testdata/yaml.key"}, in, decryptOut, test.DiscardNoTag, false, false)
 
 			// compare decrypted with expected
 			if decryptOut.String() != test.Expected {
@@ -368,7 +372,7 @@ dup: *password # alias comment`),
 			}
 
 			// re-encrypt data for second pass
-			encryptYAML(recs, decryptOut, encryptOut)
+			encrypt.EncryptYAML(recs, decryptOut, encryptOut)
 
 			// assign encrypted result to test input
 			input = encryptOut.String()

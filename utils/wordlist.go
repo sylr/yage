@@ -4,7 +4,7 @@
 // license that can be found in the LICENSE file or at
 // https://developers.google.com/open-source/licenses/bsd
 
-package main
+package utils
 
 import (
 	"crypto/rand"
@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func randomWord() string {
+func RandomWord() string {
 	buf := make([]byte, 2)
 	if _, err := rand.Read(buf); err != nil {
 		panic(err)

@@ -1,0 +1,9 @@
+  $ echo -n 'password: !crypto/age MyPassword' | yage encrypt -R ~/.ssh/id_ed25519.pub --yaml 
+  password: !crypto/age |-
+    -----BEGIN AGE ENCRYPTED FILE-----
+    YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHNzaC1lZDI1NTE5IEcwQmFrQSA1MklP
+    SXlwZWdocFRoblBaeW56WVgzazNNbWxNMTlqdnRLS21iUUZZRHdzCmF2dkZLT0ZB
+    UGZ3Z28yUHpSYWNEQzM1bGJtdGpGbE95SzBoVVlTUzdhK0kKLS0tIG1aaWZmMzBF
+    ak1JRFVXTjc3L25jcXVHRXBDRzZ4V0FKMC9MSWJud3RBeHMKOTID5tQJUeyeqqC8
+    9WLEQXPNKRgHZbuQ/A2Lb/sPVPf8wcnL2S2JZZiJ
+    -----END AGE ENCRYPTED FILE-----

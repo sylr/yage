@@ -30,7 +30,7 @@ endif # ($(GOARCH),arm)
 endif # ($(GOOS)/$(GOARCH),$(GOENV_GOOS)/$(GOENV_GOARCH))
 
 ifneq ($(DEBUG),)
-GO_BUILD_FLAGS           += -race -gcflags="all=-N -l"
+GO_BUILD_FLAGS            = -gcflags="all=-N -l"
 else
 GO_BUILD_LDFLAGS_OPTIMS  += -s -w
 endif # $(DEBUG)

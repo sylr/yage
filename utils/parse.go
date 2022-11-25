@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file or at
 // https://developers.google.com/open-source/licenses/bsd
 
-package main
+package utils
 
 import (
 	"bufio"
@@ -22,18 +22,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// stdinInUse is set in main. It's a singleton like os.Stdin.
-var stdinInUse bool
-
-type gitHubRecipientError struct {
-	username string
-}
-
-func (gitHubRecipientError) Error() string {
-	return `"github:" recipients were removed from the design`
-}
-
-func parseRecipient(arg string) (age.Recipient, error) {
+func ParseRecipient(arg string) (age.Recipient, error) {
 	switch {
 	case strings.HasPrefix(arg, "age1"):
 		return age.ParseX25519Recipient(arg)
@@ -41,13 +30,13 @@ func parseRecipient(arg string) (age.Recipient, error) {
 		return agessh.ParseRecipient(arg)
 	case strings.HasPrefix(arg, "github:"):
 		name := strings.TrimPrefix(arg, "github:")
-		return nil, gitHubRecipientError{name}
+		return nil, GitHubRecipientError{name}
 	}
 
 	return nil, fmt.Errorf("unknown recipient type: %q", arg)
 }
 
-func parseRecipientsFile(name string) ([]age.Recipient, error) {
+func ParseRecipientsFile(name string, stdinInUse bool) ([]age.Recipient, error) {
 	var f *os.File
 	if name == "-" {
 		if stdinInUse {
@@ -78,11 +67,11 @@ func parseRecipientsFile(name string) ([]age.Recipient, error) {
 		if len(line) > lineLengthLimit {
 			return nil, fmt.Errorf("%q: line %d is too long", name, n)
 		}
-		r, err := parseRecipient(line)
+		r, err := ParseRecipient(line)
 		if err != nil {
 			if t, ok := sshKeyType(line); ok {
 				// Skip unsupported but valid SSH public keys with a warning.
-				warningf("recipients file %q: ignoring unsupported SSH key of type %q at line %d", name, t, n)
+				Warningf("recipients file %q: ignoring unsupported SSH key of type %q at line %d", name, t, n)
 				continue
 			}
 			// Hide the error since it might unintentionally leak the contents
@@ -123,10 +112,10 @@ func sshKeyType(s string) (string, bool) {
 	return "", false
 }
 
-// parseIdentitiesFile parses a file that contains age or SSH keys. It returns
+// ParseIdentitiesFile parses a file that contains age or SSH keys. It returns
 // one or more of *age.X25519Identity, *agessh.RSAIdentity, *agessh.Ed25519Identity,
 // *agessh.EncryptedSSHIdentity, or *EncryptedIdentity.
-func parseIdentitiesFile(name string) ([]age.Identity, error) {
+func ParseIdentitiesFile(name string, stdinInUse bool) ([]age.Identity, error) {
 	var f *os.File
 	if name == "-" {
 		if stdinInUse {
@@ -165,14 +154,14 @@ func parseIdentitiesFile(name string) ([]age.Identity, error) {
 		return []age.Identity{&EncryptedIdentity{
 			Contents: contents,
 			Passphrase: func() (string, error) {
-				pass, err := readPassphrase(fmt.Sprintf("Enter passphrase for identity file %q:", name))
+				pass, err := ReadPassphrase(fmt.Sprintf("Enter passphrase for identity file %q:", name))
 				if err != nil {
 					return "", fmt.Errorf("could not read passphrase: %v", err)
 				}
 				return string(pass), nil
 			},
 			NoMatchWarning: func() {
-				warningf("encrypted identity file %q didn't match file's recipients", name)
+				Warningf("encrypted identity file %q didn't match file's recipients", name)
 			},
 		}}, nil
 
@@ -186,7 +175,7 @@ func parseIdentitiesFile(name string) ([]age.Identity, error) {
 		if len(contents) == privateKeySizeLimit {
 			return nil, fmt.Errorf("failed to read %q: file too long", name)
 		}
-		return parseSSHIdentity(name, contents)
+		return ParseSSHIdentity(name, contents)
 
 	// An unencrypted age identity file.
 	default:
@@ -198,7 +187,15 @@ func parseIdentitiesFile(name string) ([]age.Identity, error) {
 	}
 }
 
-func parseSSHIdentity(name string, pemBytes []byte) ([]age.Identity, error) {
+func PassphrasePrompt() (string, error) {
+	pass, err := ReadPassphrase("Enter passphrase:")
+	if err != nil {
+		return "", fmt.Errorf("could not read passphrase: %w", err)
+	}
+	return string(pass), nil
+}
+
+func ParseSSHIdentity(name string, pemBytes []byte) ([]age.Identity, error) {
 	id, err := agessh.ParseIdentity(pemBytes)
 	if sshErr, ok := err.(*ssh.PassphraseMissingError); ok {
 		pubKey := sshErr.PublicKey
@@ -209,7 +206,7 @@ func parseSSHIdentity(name string, pemBytes []byte) ([]age.Identity, error) {
 			}
 		}
 		passphrasePrompt := func() ([]byte, error) {
-			pass, err := readPassphrase(fmt.Sprintf("Enter passphrase for %q:", name))
+			pass, err := ReadPassphrase(fmt.Sprintf("Enter passphrase for %q:", name))
 			if err != nil {
 				return nil, fmt.Errorf("could not read passphrase for %q: %v", name, err)
 			}
