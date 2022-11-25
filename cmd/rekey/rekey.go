@@ -66,10 +66,18 @@ func init() {
 
 	RekeyCmd.InitDefaultCompletionCmd()
 
-	RekeyCmd.MarkFlagFilename("recipient")
-	RekeyCmd.MarkFlagFilename("recipient-file")
-	RekeyCmd.MarkFlagFilename("recipient-identity")
-	RekeyCmd.MarkFlagFilename("identity")
+	if err := RekeyCmd.MarkFlagFilename("identity"); err != nil {
+		panic(err)
+	}
+	if err := RekeyCmd.MarkFlagFilename("recipient"); err != nil {
+		panic(err)
+	}
+	if err := RekeyCmd.MarkFlagFilename("recipient-file"); err != nil {
+		panic(err)
+	}
+	if err := RekeyCmd.MarkFlagFilename("recipient-identity"); err != nil {
+		panic(err)
+	}
 }
 
 func Validate(_ *cobra.Command, _ []string) error {
@@ -250,7 +258,6 @@ func EncryptPass(pass string, in io.Reader, out io.Writer, armor bool, yaml bool
 	if err != nil {
 		return err
 	}
-	Encrypt([]age.Recipient{r}, in, out, armor)
 
 	if yaml {
 		return EncryptYAML([]age.Recipient{r}, in, out)

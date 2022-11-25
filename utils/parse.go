@@ -42,7 +42,6 @@ func ParseRecipientsFile(name string, stdinInUse bool) ([]age.Recipient, error) 
 		if stdinInUse {
 			return nil, fmt.Errorf("standard input is used for multiple purposes")
 		}
-		stdinInUse = true
 		f = os.Stdin
 	} else {
 		var err error
@@ -121,7 +120,6 @@ func ParseIdentitiesFile(name string, stdinInUse bool) ([]age.Identity, error) {
 		if stdinInUse {
 			return nil, fmt.Errorf("standard input is used for multiple purposes")
 		}
-		stdinInUse = true
 		f = os.Stdin
 	} else {
 		var err error
@@ -132,15 +130,16 @@ func ParseIdentitiesFile(name string, stdinInUse bool) ([]age.Identity, error) {
 		defer f.Close()
 	}
 
+	const headerPrefix = "-----BEGIN AGE"
 	b := bufio.NewReader(f)
-	p, _ := b.Peek(14) // length of "age-encryption" and "-----BEGIN AGE"
+	p, _ := b.Peek(len(headerPrefix))
 	peeked := string(p)
 
 	switch {
 	// An age encrypted file, plain or armored.
-	case peeked == "age-encryption" || peeked == "-----BEGIN AGE":
+	case peeked == "age-encryption" || peeked == headerPrefix:
 		var r io.Reader = b
-		if peeked == "-----BEGIN AGE" {
+		if peeked == headerPrefix {
 			r = armor.NewReader(r)
 		}
 		const privateKeySizeLimit = 1 << 24 // 16 MiB

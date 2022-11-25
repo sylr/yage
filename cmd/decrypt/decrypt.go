@@ -57,7 +57,9 @@ func init() {
 	DecryptCmd.PersistentFlags().BoolVar(&yamlNoTagFlag, "yaml-notag", false, "Strip !crypto/age tag from output")
 	DecryptCmd.PersistentFlags().BoolVar(&yamlDiscardNoTagFlag, "yaml-discard-notag", false, "Do not honour NoTag YAML tag attribute")
 
-	DecryptCmd.MarkFlagFilename("identity")
+	if err := DecryptCmd.MarkFlagFilename("identity"); err != nil {
+		panic(err)
+	}
 }
 
 func Validate(_ *cobra.Command, _ []string) error {

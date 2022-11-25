@@ -364,7 +364,10 @@ dup: *password # alias comment`),
 			encryptOut := bytes.NewBuffer(nil)
 
 			// decrypt
-			decrypt.DecryptYAML([]string{"./testdata/yaml.key"}, in, decryptOut, test.DiscardNoTag, false, false)
+			err := decrypt.DecryptYAML([]string{"./testdata/yaml.key"}, in, decryptOut, test.DiscardNoTag, false, false)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			// compare decrypted with expected
 			if decryptOut.String() != test.Expected {
@@ -372,7 +375,10 @@ dup: *password # alias comment`),
 			}
 
 			// re-encrypt data for second pass
-			encrypt.EncryptYAML(recs, decryptOut, encryptOut)
+			err = encrypt.EncryptYAML(recs, decryptOut, encryptOut)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			// assign encrypted result to test input
 			input = encryptOut.String()
