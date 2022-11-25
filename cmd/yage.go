@@ -17,13 +17,29 @@ import (
 
 var Version string = "dev"
 
+var (
+	decryptFlag bool
+	encryptFlag bool
+)
+
 var YAGECmd = cobra.Command{
-	Use:     "yage",
-	Short:   "yage, yaml+age",
-	Version: Version,
+	Use:          "yage",
+	Short:        "yage, yaml+age",
+	Version:      Version,
+	SilenceUsage: true,
 }
 
 func init() {
+	YAGECmd.Flags().BoolVarP(&decryptFlag, "decrypt", "d", false, "decrypt data")
+	YAGECmd.Flags().BoolVarP(&encryptFlag, "encrypt", "e", false, "encrypt data")
+
+	if err := YAGECmd.Flags().MarkDeprecated("decrypt", "use decrypt sub-command instead"); err != nil {
+		panic(err)
+	}
+	if err := YAGECmd.Flags().MarkDeprecated("encrypt", "use encrypt sub-command instead"); err != nil {
+		panic(err)
+	}
+
 	YAGECmd.AddGroup(&cobra.Group{ID: "age", Title: "Commands:"})
 	YAGECmd.AddCommand(&decrypt.DecryptCmd)
 	YAGECmd.AddCommand(&encrypt.EncryptCmd)
