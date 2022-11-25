@@ -20,6 +20,7 @@ import (
 	"filippo.io/age/armor"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
+
 	"sylr.dev/yage/utils"
 	yage "sylr.dev/yaml/age/v3"
 	"sylr.dev/yaml/v3"
@@ -57,7 +58,7 @@ func init() {
 	DecryptCmd.PersistentFlags().BoolVar(&yamlNoTagFlag, "yaml-notag", false, "Strip !crypto/age tag from output")
 	DecryptCmd.PersistentFlags().BoolVar(&yamlDiscardNoTagFlag, "yaml-discard-notag", false, "Do not honour NoTag YAML tag attribute")
 
-	if err := DecryptCmd.MarkFlagFilename("identity"); err != nil {
+	if err := cobra.MarkFlagFilename(DecryptCmd.PersistentFlags(), "identity"); err != nil {
 		panic(err)
 	}
 }

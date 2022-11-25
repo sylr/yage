@@ -61,13 +61,13 @@ func init() {
 	EncryptCmd.PersistentFlags().BoolVarP(&yamlFlag, "yaml", "y", false, "In-place yaml encrypting")
 	EncryptCmd.PersistentFlags().BoolVar(&yamlDiscardNotagFlag, "yaml-discard-notag", false, "Do not honour NoTag YAML tag attribute")
 
-	if err := EncryptCmd.MarkFlagFilename("recipient"); err != nil {
+	if err := cobra.MarkFlagFilename(EncryptCmd.PersistentFlags(), "recipient"); err != nil {
 		panic(err)
 	}
-	if err := EncryptCmd.MarkFlagFilename("recipient-file"); err != nil {
+	if err := cobra.MarkFlagFilename(EncryptCmd.PersistentFlags(), "recipient-file"); err != nil {
 		panic(err)
 	}
-	if err := EncryptCmd.MarkFlagFilename("identity"); err != nil {
+	if err := cobra.MarkFlagFilename(EncryptCmd.PersistentFlags(), "identity"); err != nil {
 		panic(err)
 	}
 }

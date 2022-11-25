@@ -66,16 +66,16 @@ func init() {
 
 	RekeyCmd.InitDefaultCompletionCmd()
 
-	if err := RekeyCmd.MarkFlagFilename("identity"); err != nil {
+	if err := cobra.MarkFlagFilename(RekeyCmd.PersistentFlags(), "identity"); err != nil {
 		panic(err)
 	}
-	if err := RekeyCmd.MarkFlagFilename("recipient"); err != nil {
+	if err := cobra.MarkFlagFilename(RekeyCmd.PersistentFlags(), "recipient"); err != nil {
 		panic(err)
 	}
-	if err := RekeyCmd.MarkFlagFilename("recipient-file"); err != nil {
+	if err := cobra.MarkFlagFilename(RekeyCmd.PersistentFlags(), "recipient-file"); err != nil {
 		panic(err)
 	}
-	if err := RekeyCmd.MarkFlagFilename("recipient-identity"); err != nil {
+	if err := cobra.MarkFlagFilename(RekeyCmd.PersistentFlags(), "recipient-identity"); err != nil {
 		panic(err)
 	}
 }
