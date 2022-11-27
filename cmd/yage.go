@@ -8,6 +8,8 @@
 package yage
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 
 	"sylr.dev/yage/cmd/decrypt"
@@ -23,20 +25,22 @@ var (
 )
 
 var YAGECmd = cobra.Command{
-	Use:          "yage",
-	Short:        "yage, yaml+age",
-	Version:      Version,
-	SilenceUsage: true,
+	Use:           "yage",
+	Short:         "yage, yaml+age",
+	Version:       Version,
+	SilenceErrors: false,
+	SilenceUsage:  true,
+	RunE:          RunE,
 }
 
 func init() {
 	YAGECmd.Flags().BoolVarP(&decryptFlag, "decrypt", "d", false, "decrypt data")
 	YAGECmd.Flags().BoolVarP(&encryptFlag, "encrypt", "e", false, "encrypt data")
 
-	if err := YAGECmd.Flags().MarkDeprecated("decrypt", "use decrypt sub-command instead"); err != nil {
+	if err := YAGECmd.Flags().MarkDeprecated("decrypt", "use `decrypt` sub-command instead"); err != nil {
 		panic(err)
 	}
-	if err := YAGECmd.Flags().MarkDeprecated("encrypt", "use encrypt sub-command instead"); err != nil {
+	if err := YAGECmd.Flags().MarkDeprecated("encrypt", "use `encrypt` sub-command instead"); err != nil {
 		panic(err)
 	}
 
@@ -44,4 +48,14 @@ func init() {
 	YAGECmd.AddCommand(&decrypt.DecryptCmd)
 	YAGECmd.AddCommand(&encrypt.EncryptCmd)
 	YAGECmd.AddCommand(&rekey.RekeyCmd)
+}
+
+func RunE(cmd *cobra.Command, args []string) error {
+	if !decryptFlag && !encryptFlag {
+		return cmd.Usage()
+	}
+
+	os.Exit(1)
+
+	return nil
 }

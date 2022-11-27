@@ -97,7 +97,7 @@ GO_BUILD_TAGS           := $(strip $(GO_BUILD_TAGS))
 GO_BUILD_TARGET_DEPS    := $(strip $(GO_BUILD_TARGET_DEPS))
 GO_BUILD_FLAGS          := $(strip $(GO_BUILD_FLAGS))
 GO_BUILD_LDFLAGS_OPTIMS := $(strip $(GO_BUILD_LDFLAGS_OPTIMS))
-GO_BUILD_LDFLAGS        := -ldflags '$(GO_BUILD_LDFLAGS_OPTIMS) -X main.Version=$(GIT_VERSION) -extldflags "$(GO_BUILD_EXTLDFLAGS)"'
+GO_BUILD_LDFLAGS        := -ldflags '$(GO_BUILD_LDFLAGS_OPTIMS) -X sylr.dev/yage/cmd.Version=$(GIT_VERSION) -extldflags "$(GO_BUILD_EXTLDFLAGS)"'
 
 GO_TOOLS_GOLANGCI_LINT ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 
