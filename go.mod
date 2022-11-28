@@ -1,4 +1,4 @@
-module sylr.dev/yage
+module sylr.dev/yage/v2
 
 go 1.19
 

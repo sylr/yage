@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"sylr.dev/yage/utils"
+	"sylr.dev/yage/v2/utils"
 	yage "sylr.dev/yaml/age/v3"
 	"sylr.dev/yaml/v3"
 )

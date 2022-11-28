@@ -12,9 +12,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"sylr.dev/yage/cmd/decrypt"
-	"sylr.dev/yage/cmd/encrypt"
-	"sylr.dev/yage/cmd/rekey"
+	"sylr.dev/yage/v2/cmd/decrypt"
+	"sylr.dev/yage/v2/cmd/encrypt"
+	"sylr.dev/yage/v2/cmd/rekey"
 )
 
 var Version string = "dev"

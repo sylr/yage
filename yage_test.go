@@ -19,9 +19,9 @@ import (
 
 	"filippo.io/age"
 
-	"sylr.dev/yage/cmd/decrypt"
-	"sylr.dev/yage/cmd/encrypt"
-	"sylr.dev/yage/utils"
+	"sylr.dev/yage/v2/cmd/decrypt"
+	"sylr.dev/yage/v2/cmd/encrypt"
+	"sylr.dev/yage/v2/utils"
 )
 
 func TestVectors(t *testing.T) {
