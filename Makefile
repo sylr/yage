@@ -36,13 +36,12 @@ GO_BUILD_LDFLAGS_OPTIMS  += -s -w
 endif # $(DEBUG)
 
 GO_BUILD_FLAGS_TARGET           := .go-build-flags
-GO_CROSSBUILD_WINDOWS_PLATFORMS := windows/amd64 windows/386 windows/arm
+GO_CROSSBUILD_WINDOWS_PLATFORMS := windows/386 windows/amd64 windows/arm windows/arm64
 GO_CROSSBUILD_PLATFORMS         ?= linux/386 linux/amd64 linux/arm linux/arm64 linux/arm/v7 linux/arm/v6 \
                                    linux/mips linux/mips/softfloat linux/mips64 linux/mips64le linux/mipsle \
                                    linux/riscv64 linux/s390x \
                                    freebsd/386 freebsd/amd64 freebsd/arm freebsd/arm64 freebsd/arm/v7 freebsd/arm/v6 \
                                    openbsd/386 openbsd/amd64 openbsd/arm openbsd/arm64 openbsd/arm/v7 openbsd/arm/v6 \
-                                   openbsd/mips64 \
                                    netbsd/386 netbsd/amd64 netbsd/arm netbsd/arm64 netbsd/arm/v7 netbsd/arm/v6 \
                                    plan9/386 plan9/amd64 plan9/arm plan9/arm/v7 plan9/arm/v6 \
                                    darwin/amd64 darwin/arm64 \
