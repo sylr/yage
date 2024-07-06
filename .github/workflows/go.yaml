@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go: ["1.21"]
+        go: ["1.22"]
     steps:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
