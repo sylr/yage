@@ -8,6 +8,10 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     strategy:
       matrix:
         go: ["1.22"]
@@ -49,3 +53,20 @@ jobs:
 
     - name: Crossbuild
       run: make crossbuild
+
+    - uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: |
+          dist/*
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: build
+        retention-days: 3
+        path: |
+          dist/*-darwin-amd64*
+          dist/*-darwin-arm64*
+          dist/*-linux-amd64*
+          dist/*-linux-arm64*
+          dist/*-windows-amd64*
+          dist/*-windows-arm64*
