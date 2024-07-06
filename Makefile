@@ -112,7 +112,16 @@ DOCKER_BUILD_LABELS     += --label org.opencontainers.image.version=$(GIT_VERSIO
 DOCKER_BUILD_LABELS     += --label org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 DOCKER_BUILD_BUILD_ARGS ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
 DOCKER_BUILDX_PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
-DOCKER_BUILDX_CACHE     ?= /tmp/.buildx-cache
+
+ifeq ($(CI),true)
+DOCKER_BUILD_BUILD_ARGS += --cache-to=type=gha,mode=max
+DOCKER_BUILD_BUILD_ARGS += --cache-from=type=gha
+DOCKER_BUILD_BUILD_ARGS += --progress=plain
+else
+DOCKER_BUILDX_CACHE_DIR ?= /tmp/.buildx-cache
+DOCKER_BUILD_BUILD_ARGS += --cache-to=type=local,dest=$(DOCKER_BUILDX_CACHE_DIR)
+DOCKER_BUILD_BUILD_ARGS += --cache-from=type=local,src=$(DOCKER_BUILDX_CACHE_DIR)
+endif
 
 # ------------------------------------------------------------------------------
 
@@ -235,7 +244,6 @@ $(GO_TOOLS_GOLANGCI_LINT):
 docker-buildx-build:
 	@docker buildx build . -f Dockerfile \
 		-t $(DOCKER_BUILD_IMAGE):$(DOCKER_BUILD_VERSION) \
-		--cache-to=type=local,dest=$(DOCKER_BUILDX_CACHE) \
 		--platform=$(DOCKER_BUILDX_PLATFORMS) \
 		$(DOCKER_BUILD_BUILD_ARGS) \
 		$(DOCKER_BUILD_LABELS)
@@ -243,7 +251,6 @@ docker-buildx-build:
 docker-buildx-push:
 	@docker buildx build . -f Dockerfile \
 		-t $(DOCKER_BUILD_IMAGE):$(DOCKER_BUILD_VERSION) \
-		--cache-from=type=local,src=$(DOCKER_BUILDX_CACHE) \
 		--platform=$(DOCKER_BUILDX_PLATFORMS) \
 		$(DOCKER_BUILD_BUILD_ARGS) \
 		$(DOCKER_BUILD_LABELS) \
