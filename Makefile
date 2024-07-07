@@ -103,14 +103,14 @@ GO_TOOLS_GOLANGCI_LINT ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 DOCKER_BUILD_IMAGE      ?= ghcr.io/sylr/yage
 DOCKER_BUILD_VERSION    ?= $(GIT_VERSION)
 DOCKER_BUILD_GO_VERSION ?= 1.22
-DOCKER_BUILD_LABELS      = --label org.opencontainers.image.title=yage
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.description="age+yaml"
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.url="https://github.com/sylr/yage"
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.source="https://github.com/sylr/yage"
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.revision=$(GIT_REVISION)
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.version=$(GIT_VERSION)
-DOCKER_BUILD_LABELS     += --label org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
-DOCKER_BUILD_BUILD_ARGS ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
+DOCKER_BUILD_LABELS      = --annotation org.opencontainers.image.title=yage
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.description="age+yaml"
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.url="https://github.com/sylr/yage"
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.source="https://github.com/sylr/yage"
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.revision=$(GIT_REVISION)
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.version=$(GIT_VERSION)
+DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+DOCKER_BUILD_BUILD_ARGS := --build-arg=VERSION=$(GIT_VERSION)
 DOCKER_BUILD_BUILD_ARGS += --metadata-file=.buildx-metadata.json
 DOCKER_BUILDX_PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
 
@@ -249,7 +249,7 @@ docker-buildx-build:
 		$(DOCKER_BUILD_BUILD_ARGS) \
 		$(DOCKER_BUILD_LABELS)
 
-docker-buildx-push:
+docker-buildx-push: crossbuild
 	@docker buildx build . -f Dockerfile \
 		-t $(DOCKER_BUILD_IMAGE):$(DOCKER_BUILD_VERSION) \
 		--platform=$(DOCKER_BUILDX_PLATFORMS) \
