@@ -9,8 +9,10 @@ jobs:
     name: Build
     runs-on: ubuntu-22.04
     permissions:
+      id-token: write
       contents: write
       packages: write
+      attestations: write
     steps:
     - uses: actions/checkout@v4
       with:
@@ -45,31 +47,33 @@ jobs:
           image=moby/buildkit:master
           network=host
 
+    - name: Expose GitHub Runtime
+      uses: crazy-max/ghaction-github-runtime@v3
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Crossbuild
       run: make crossbuild
 
     - name: Checksums
       run: make crossbuild-checksums
 
-    - name: Create release
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      id: create_release
-      uses: actions/create-release@latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/attest-build-provenance@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
-        draft: false
-        prerelease: true
+        subject-path: |
+          dist/*
 
-    - name: Upload artifacts
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      uses: alexellis/upload-assets@0.2.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create release
+      uses: ncipollo/release-action@v1
       with:
-        asset_paths: '["./dist/yage-*-*", "./dist/checksums"]'
+        artifacts: "./dist/yage-*-*,./dist/checksums"
+        generateReleaseNotes: true
+        prerelease: ${{ contains(github.ref, '-rc') && 'true' || 'false' }}
 
     - name: Login to GitHub Docker registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
