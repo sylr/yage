@@ -1,5 +1,3 @@
 dist
-.vscode
 .go-build-flags
-go.work*
 .buildx-metadata.json

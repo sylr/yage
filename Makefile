@@ -111,6 +111,7 @@ DOCKER_BUILD_LABELS     += --label org.opencontainers.image.revision=$(GIT_REVIS
 DOCKER_BUILD_LABELS     += --label org.opencontainers.image.version=$(GIT_VERSION)
 DOCKER_BUILD_LABELS     += --label org.opencontainers.image.created=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 DOCKER_BUILD_BUILD_ARGS ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
+DOCKER_BUILD_BUILD_ARGS += --metadata-file=.buildx-metadata.json
 DOCKER_BUILDX_PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
 
 ifeq ($(CI),true)

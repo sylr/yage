@@ -79,5 +79,15 @@ jobs:
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Build and push docker image
+      id: docker-build
       run: |
         make docker-buildx-push
+        jq -r '."image.name" | split(":"; null)[0] | ("image="+.)' < .buildx-metadata.json >> "$GITHUB_OUTPUT"
+        jq -r '."containerimage.digest" | ("digest="+.)' < .buildx-metadata.json >> "$GITHUB_OUTPUT"
+
+    - uses: actions/attest-build-provenance@v1
+      with:
+        subject-name: ${{ steps.docker-build.outputs.image }}
+        subject-digest: ${{ steps.docker-build.outputs.digest }}
+        push-to-registry: true
+
