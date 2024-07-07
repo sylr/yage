@@ -1,5 +1,5 @@
 GO                ?= $(shell which go)
-GIT_UPDATE_INDEX  := $(shell git update-index --refresh)
+GIT_UPDATE_INDEX  ?= $(shell git update-index --refresh)
 GIT_REVISION      ?= $(shell git rev-parse HEAD)
 GIT_VERSION       ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 
@@ -15,17 +15,18 @@ GO_BUILD_TAGS            := static
 GO_BUILD_TARGET_DEPS     :=
 GO_BUILD_FLAGS           := -trimpath
 GO_BUILD_LDFLAGS_OPTIMS  :=
+GO_BUILD_DIR             ?= dist
 
 ifeq ($(GOOS)/$(GOARCH),$(GOENV_GOOS)/$(GOENV_GOARCH))
-GO_BUILD_TARGET          ?= dist/yage
-GO_BUILD_VERSION_TARGET  ?= dist/yage-$(GIT_VERSION)
+GO_BUILD_TARGET          ?= $(GO_BUILD_DIR)/yage
+GO_BUILD_VERSION_TARGET  ?= $(GO_BUILD_DIR)/yage-$(GIT_VERSION)
 else
 ifeq ($(GOARCH),arm)
-GO_BUILD_TARGET          ?= dist/yage-$(GOOS)-$(GOARCH)v$(GOARM)
-GO_BUILD_VERSION_TARGET  := dist/yage-$(GIT_VERSION)-$(GOOS)-$(GOARCH)v$(GOARM)
+GO_BUILD_TARGET          ?= $(GO_BUILD_DIR)/yage-$(GOOS)-$(GOARCH)v$(GOARM)
+GO_BUILD_VERSION_TARGET  := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-$(GOOS)-$(GOARCH)v$(GOARM)
 else
-GO_BUILD_TARGET          ?= dist/yage-$(GOOS)-$(GOARCH)
-GO_BUILD_VERSION_TARGET  := dist/yage-$(GIT_VERSION)-$(GOOS)-$(GOARCH)
+GO_BUILD_TARGET          ?= $(GO_BUILD_DIR)/yage-$(GOOS)-$(GOARCH)
+GO_BUILD_VERSION_TARGET  := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-$(GOOS)-$(GOARCH)
 endif # ($(GOARCH),arm)
 endif # ($(GOOS)/$(GOARCH),$(GOENV_GOOS)/$(GOENV_GOARCH))
 
@@ -35,7 +36,7 @@ else
 GO_BUILD_LDFLAGS_OPTIMS  += -s -w
 endif # $(DEBUG)
 
-GO_BUILD_FLAGS_TARGET           := .go-build-flags
+GO_BUILD_FLAGS_TARGET           ?= .go-build-flags
 GO_CROSSBUILD_WINDOWS_PLATFORMS := windows/386 windows/amd64 windows/arm windows/arm64
 GO_CROSSBUILD_PLATFORMS         ?= linux/386 linux/amd64 linux/arm linux/arm64 linux/arm/v7 linux/arm/v6 \
                                    linux/mips linux/mips/softfloat linux/mips64 linux/mips64le linux/mipsle \
@@ -62,19 +63,19 @@ GO_CROSSBUILD_RISCV64_PLATFORMS       := $(filter %/riscv64,$(GO_CROSSBUILD_PLAT
 GO_CROSSBUILD_S390X_PLATFORMS         := $(filter %/s390x,$(GO_CROSSBUILD_PLATFORMS))
 GO_CROSSBUILD_WINDOWS_PLATFORMS       := $(filter windows/%,$(GO_CROSSBUILD_WINDOWS_PLATFORMS))
 
-GO_CROSSBUILD_386_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-386
-GO_CROSSBUILD_AMD64_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-amd64
-GO_CROSSBUILD_ARM_TARGET_PATTERN      := dist/yage-$(GIT_VERSION)-%-arm
-GO_CROSSBUILD_ARM64_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-arm64
-GO_CROSSBUILD_ARMV6_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-armv6
-GO_CROSSBUILD_ARMV7_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-armv7
-GO_CROSSBUILD_MIPS_TARGET_PATTERN     := dist/yage-$(GIT_VERSION)-%-mips
-GO_CROSSBUILD_MIPSLE_TARGET_PATTERN   := dist/yage-$(GIT_VERSION)-%-mipsle
-GO_CROSSBUILD_MIPS64_TARGET_PATTERN   := dist/yage-$(GIT_VERSION)-%-mips64
-GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN := dist/yage-$(GIT_VERSION)-%-mips64le
-GO_CROSSBUILD_RISCV64_TARGET_PATTERN  := dist/yage-$(GIT_VERSION)-%-riscv64
-GO_CROSSBUILD_S390X_TARGET_PATTERN    := dist/yage-$(GIT_VERSION)-%-s390x
-GO_CROSSBUILD_WINDOWS_TARGET_PATTERN  := dist/yage-$(GIT_VERSION)-windows-%.exe
+GO_CROSSBUILD_386_TARGET_PATTERN      := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-386
+GO_CROSSBUILD_AMD64_TARGET_PATTERN    := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-amd64
+GO_CROSSBUILD_ARM_TARGET_PATTERN      := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-arm
+GO_CROSSBUILD_ARM64_TARGET_PATTERN    := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-arm64
+GO_CROSSBUILD_ARMV6_TARGET_PATTERN    := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-armv6
+GO_CROSSBUILD_ARMV7_TARGET_PATTERN    := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-armv7
+GO_CROSSBUILD_MIPS_TARGET_PATTERN     := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-mips
+GO_CROSSBUILD_MIPSLE_TARGET_PATTERN   := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-mipsle
+GO_CROSSBUILD_MIPS64_TARGET_PATTERN   := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-mips64
+GO_CROSSBUILD_MIPS64LE_TARGET_PATTERN := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-mips64le
+GO_CROSSBUILD_RISCV64_TARGET_PATTERN  := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-riscv64
+GO_CROSSBUILD_S390X_TARGET_PATTERN    := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-%-s390x
+GO_CROSSBUILD_WINDOWS_TARGET_PATTERN  := $(GO_BUILD_DIR)/yage-$(GIT_VERSION)-windows-%.exe
 
 GO_CROSSBUILD_TARGETS := $(patsubst %/386,$(GO_CROSSBUILD_386_TARGET_PATTERN),$(GO_CROSSBUILD_386_PLATFORMS))
 GO_CROSSBUILD_TARGETS += $(patsubst %/amd64,$(GO_CROSSBUILD_AMD64_TARGET_PATTERN),$(GO_CROSSBUILD_AMD64_PLATFORMS))
@@ -114,8 +115,9 @@ DOCKER_BUILD_BUILD_ARGS ?= --build-arg=GO_VERSION=$(DOCKER_BUILD_GO_VERSION)
 DOCKER_BUILDX_PLATFORMS ?= linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
 
 ifeq ($(CI),true)
-DOCKER_BUILD_BUILD_ARGS += --cache-to=type=gha,mode=max
-DOCKER_BUILD_BUILD_ARGS += --cache-from=type=gha
+DOCKER_BUILDX_CACHE_DIR ?= /tmp/.buildx-cache
+DOCKER_BUILD_BUILD_ARGS += --cache-to=type=local,dest=$(DOCKER_BUILDX_CACHE_DIR)
+DOCKER_BUILD_BUILD_ARGS += --cache-from=type=local,src=$(DOCKER_BUILDX_CACHE_DIR)
 DOCKER_BUILD_BUILD_ARGS += --progress=plain
 else
 DOCKER_BUILDX_CACHE_DIR ?= /tmp/.buildx-cache
@@ -203,9 +205,9 @@ $(GO_CROSSBUILD_RISCV64_TARGET_PATTERN): $(GO_BUILD_SRC) $(GO_BUILD_FLAGS_TARGET
 $(GO_CROSSBUILD_S390X_TARGET_PATTERN): $(GO_BUILD_SRC) $(GO_BUILD_FLAGS_TARGET)
 	CGO_ENABLED=0 GOOS=$* GOARCH=s390x $(GO) build -tags $(GO_BUILD_TAGS),crossbuild $(GO_BUILD_FLAGS) $(GO_BUILD_LDFLAGS) -o $@
 
-crossbuild-checksums: dist/checksums
+crossbuild-checksums: $(GO_BUILD_DIR)/checksums
 
-dist/checksums : $(GO_CROSSBUILD_TARGETS)
+$(GO_BUILD_DIR)/checksums : $(GO_CROSSBUILD_TARGETS)
 	cd dist && shasum -a 256 yage-*-* > checksums
 
 # -- go mod --------------------------------------------------------------------
