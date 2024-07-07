@@ -34,6 +34,7 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: "1.22"
+        check-latest: true
         cache: false
       id: go
 
@@ -89,5 +90,4 @@ jobs:
       with:
         subject-name: ${{ steps.docker-build.outputs.image }}
         subject-digest: ${{ steps.docker-build.outputs.digest }}
-        push-to-registry: true
 
