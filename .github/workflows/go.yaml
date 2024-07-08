@@ -39,6 +39,12 @@ jobs:
         cache: false
       id: go
 
+    - name: Setup docker QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Setup docker buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Verify go mod
       run: make go-mod-verify
 
