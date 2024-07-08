@@ -54,6 +54,10 @@ jobs:
     - name: Crossbuild
       run: make crossbuild
 
+    - name: Build docker image
+      run: |
+        make docker-buildx-build
+
     - uses: actions/attest-build-provenance@v1
       with:
         subject-path: |

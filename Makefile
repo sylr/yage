@@ -102,7 +102,6 @@ GO_TOOLS_GOLANGCI_LINT ?= $(shell $(GO) env GOPATH)/bin/golangci-lint
 
 DOCKER_BUILD_IMAGE      ?= ghcr.io/sylr/yage
 DOCKER_BUILD_VERSION    ?= $(GIT_VERSION)
-DOCKER_BUILD_GO_VERSION ?= 1.22
 DOCKER_BUILD_LABELS      = --annotation org.opencontainers.image.title=yage
 DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.description="age+yaml"
 DOCKER_BUILD_LABELS     += --annotation org.opencontainers.image.url="https://github.com/sylr/yage"
@@ -242,7 +241,7 @@ $(GO_TOOLS_GOLANGCI_LINT):
 
 .PHONY: docker-buildx-build docker-buildx-push docker-buildx-inspect
 
-docker-buildx-build:
+docker-buildx-build: crossbuild
 	@docker buildx build . -f Dockerfile \
 		-t $(DOCKER_BUILD_IMAGE):$(DOCKER_BUILD_VERSION) \
 		--platform=$(DOCKER_BUILDX_PLATFORMS) \
