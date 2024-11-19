@@ -7,14 +7,14 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       id-token: write
       contents: read
       attestations: write
     strategy:
       matrix:
-        go: ["1.22"]
+        go: ["1.23"]
     steps:
     - uses: actions/checkout@v4
       with:
