@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"bytes"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -18,12 +19,13 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/armor"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/parser"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"sylr.dev/yage/v2/utils"
-	yage "sylr.dev/yaml/age/v3"
-	"sylr.dev/yaml/v3"
+	"sylr.dev/yage/v3/utils"
+	. "sylr.dev/yage/v3/yaml"
 )
 
 var (
@@ -133,7 +135,7 @@ func Decrypt(keys []string, in io.Reader, out io.Writer, stdinInUse bool) error 
 	identities := []age.Identity{
 		// If there is a scrypt recipient (it will have to be the only one)
 		// this identity will be invoked.
-		&utils.LazyScryptIdentity{utils.PassphrasePrompt},
+		&utils.LazyScryptIdentity{Passphrase: utils.PassphrasePrompt},
 	}
 
 	utils.AddOpenSSHIdentities(&identities)
@@ -169,7 +171,7 @@ func DecryptYAML(keys []string, in io.Reader, out io.Writer, stdinInUse, noTag b
 	identities := []age.Identity{
 		// If there is a scrypt recipient (it will have to be the only one)
 		// this identity will be invoked.
-		&utils.LazyScryptIdentity{utils.PassphrasePrompt},
+		&utils.LazyScryptIdentity{Passphrase: utils.PassphrasePrompt},
 	}
 
 	utils.AddOpenSSHIdentities(&identities)
@@ -182,32 +184,30 @@ func DecryptYAML(keys []string, in io.Reader, out io.Writer, stdinInUse, noTag b
 		identities = append(identities, ids...)
 	}
 
-	node := yaml.Node{}
-	w := yage.Wrapper{
-		Value:        &node,
+	yamlBytes, err := io.ReadAll(in)
+	if err != nil {
+		return err
+	}
+	file, err := parser.ParseBytes(yamlBytes, parser.ParseComments)
+	if err != nil {
+		return err
+	}
+
+	rt := &RoundTrip{
 		Identities:   identities,
 		ForceNoTag:   noTag,
 		DiscardNoTag: discardNoTag,
+		NoDecrypt:    false,
 	}
-
-	decoder := yaml.NewDecoder(in)
-	encoder := yaml.NewEncoder(out)
-	encoder.SetIndent(2)
-	defer encoder.Close()
-
-	for {
-		err := decoder.Decode(&w)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-
-		err = encoder.Encode(&node)
-		if err != nil {
+	for _, doc := range file.Docs {
+		ast.Walk(rt, doc.Body)
+		if errs := rt.Errors(); len(errs) > 0 {
+			err := errors.Join(errs...)
 			return err
 		}
 	}
 
-	return nil
+	_, err = io.Copy(out, file)
+
+	return err
 }

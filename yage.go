@@ -10,7 +10,7 @@ package main
 import (
 	"os"
 
-	yagecmd "sylr.dev/yage/v2/cmd"
+	yagecmd "sylr.dev/yage/v3/cmd"
 )
 
 func main() {

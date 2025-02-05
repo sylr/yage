@@ -10,6 +10,7 @@ package encrypt
 import (
 	"bytes"
 	_ "embed"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -18,12 +19,13 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/armor"
+	"github.com/goccy/go-yaml/ast"
+	"github.com/goccy/go-yaml/parser"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"sylr.dev/yage/v2/utils"
-	yage "sylr.dev/yaml/age/v3"
-	"sylr.dev/yaml/v3"
+	"sylr.dev/yage/v3/utils"
+	. "sylr.dev/yage/v3/yaml"
 )
 
 var (
@@ -151,7 +153,7 @@ func Run(_ *cobra.Command, args []string) error {
 	}
 
 	if passFlag {
-		if pass, err := passphrasePromptForEncryption(); err != nil {
+		if pass, err := PassphrasePromptForEncryption(); err != nil {
 			return err
 		} else {
 			return EncryptPass(pass, in, out, armorFlag, yamlFlag)
@@ -161,7 +163,7 @@ func Run(_ *cobra.Command, args []string) error {
 	return EncryptKeys(recipientFlags, recipientFileFlags, identityFlags, in, out, armorFlag, stdinInUse, yamlFlag)
 }
 
-func passphrasePromptForEncryption() (string, error) {
+func PassphrasePromptForEncryption() (string, error) {
 	pass, err := utils.ReadPassphrase("Enter passphrase (leave empty to autogenerate a secure one):")
 	if err != nil {
 		return "", fmt.Errorf("could not read passphrase: %v", err)
@@ -255,13 +257,11 @@ func EncryptPass(pass string, in io.Reader, out io.Writer, armor bool, yaml bool
 func Encrypt(recipients []age.Recipient, in io.Reader, out io.Writer, withArmor bool) error {
 	if withArmor {
 		a := armor.NewWriter(out)
-
 		defer func() {
 			if err := a.Close(); err != nil {
 				log.Fatal("%w", err)
 			}
 		}()
-
 		out = a
 	}
 
@@ -282,27 +282,30 @@ func Encrypt(recipients []age.Recipient, in io.Reader, out io.Writer, withArmor 
 }
 
 func EncryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) error {
-	node := yaml.Node{}
-	w := yage.Wrapper{Value: &node, Recipients: recipients, NoDecrypt: true}
+	yamlBytes, err := io.ReadAll(in)
+	if err != nil {
+		return err
+	}
 
-	decoder := yaml.NewDecoder(in)
-	encoder := yaml.NewEncoder(out)
-	encoder.SetIndent(2)
-	defer encoder.Close()
+	file, err := parser.ParseBytes(yamlBytes, parser.ParseComments)
+	if err != nil {
+		return err
+	}
 
-	for {
-		err := decoder.Decode(&w)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return fmt.Errorf("yaml decoding failed: %w", err)
-		}
-
-		err = encoder.Encode(&w)
-		if err != nil {
-			return fmt.Errorf("yaml encoding failed: %w", err)
+	rt := &RoundTrip{
+		Recipients:   recipients,
+		NoDecrypt:    true,
+		DiscardNoTag: yamlDiscardNotagFlag,
+	}
+	for _, doc := range file.Docs {
+		ast.Walk(rt, doc.Body)
+		if errs := rt.Errors(); len(errs) > 0 {
+			err := errors.Join(errs...)
+			return err
 		}
 	}
 
-	return nil
+	_, err = io.Copy(out, file)
+
+	return err
 }
