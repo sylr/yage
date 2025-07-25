@@ -37,7 +37,9 @@ func ReadPassphrase(prompt string) ([]byte, error) {
 		}
 		in, out = os.Stdin, os.Stderr
 	}
-	fmt.Fprintf(out, "%s ", prompt)
+	if _, err := fmt.Fprintf(out, "%s ", prompt); err != nil {
+		return nil, fmt.Errorf("failed to write prompt to output: %w", err)
+	}
 	// Use CRLF to work around an apparent bug in WSL2's handling of CONOUT$.
 	// Only when running a Windows binary from WSL2, the cursor would not go
 	// back to the start of the line with a simple LF. Honestly, it's impressive

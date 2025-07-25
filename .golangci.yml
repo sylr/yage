@@ -1,3 +1,18 @@
-issues:
-  exclude:
-  - composite
+version: "2"
+linters:
+  settings:
+    govet:
+      disable:
+      - composites
+    errcheck:
+      exclude-functions:
+      - fmt.Fprintf
+      - (io.Closer).Close
+      - (*os.File).Close
+      - (*sylr.dev/yaml/v3.Encoder).Close
+  exclusions:
+    rules:
+    - linters:
+      - staticcheck
+      path: cmd/.*/.*\.go
+      text: "ST1005:"

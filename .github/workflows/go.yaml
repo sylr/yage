@@ -14,9 +14,9 @@ jobs:
       attestations: write
     strategy:
       matrix:
-        go: ["1.23"]
+        go: ["1.25"]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         filter: tree:0
@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Set up Go ${{ matrix.go }}
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go }}
         cache: false
@@ -49,7 +49,7 @@ jobs:
       run: make go-mod-verify
 
     - name: Lint
-      uses: golangci/golangci-lint-action@v6
+      uses: golangci/golangci-lint-action@v8
       with:
         args: --timeout=10m
         skip-cache: true
@@ -64,7 +64,7 @@ jobs:
       run: |
         make docker-buildx-build
 
-    - uses: actions/attest-build-provenance@v1
+    - uses: actions/attest-build-provenance@v2
       with:
         subject-path: |
           dist/*-darwin-amd64*

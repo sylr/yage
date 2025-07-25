@@ -14,7 +14,7 @@ jobs:
       packages: write
       attestations: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         filter: tree:0
@@ -31,9 +31,9 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
-        go-version: "1.23"
+        go-version: "1.25"
         check-latest: true
         cache: false
       id: go
@@ -64,7 +64,7 @@ jobs:
     - name: Checksums
       run: make crossbuild-checksums
 
-    - uses: actions/attest-build-provenance@v1
+    - uses: actions/attest-build-provenance@v2
       with:
         subject-path: |
           dist/*
@@ -86,8 +86,7 @@ jobs:
         jq -r '."image.name" | split(":"; null)[0] | ("image="+.)' < .buildx-metadata.json >> "$GITHUB_OUTPUT"
         jq -r '."containerimage.digest" | ("digest="+.)' < .buildx-metadata.json >> "$GITHUB_OUTPUT"
 
-    - uses: actions/attest-build-provenance@v1
+    - uses: actions/attest-build-provenance@v2
       with:
         subject-name: ${{ steps.docker-build.outputs.image }}
         subject-digest: ${{ steps.docker-build.outputs.digest }}
-
