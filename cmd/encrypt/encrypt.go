@@ -19,11 +19,11 @@ import (
 	"filippo.io/age"
 	"filippo.io/age/armor"
 	"github.com/spf13/cobra"
+	"go.yaml.in/yaml/v3"
 	"golang.org/x/term"
 
 	"sylr.dev/yage/v2/utils"
 	yage "sylr.dev/yaml/age/v3"
-	"sylr.dev/yaml/v3"
 )
 
 var (
@@ -288,6 +288,7 @@ func EncryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) error 
 	decoder := yaml.NewDecoder(in)
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(2)
+	encoder.CompactSeqIndent()
 	defer encoder.Close()
 
 	for {
