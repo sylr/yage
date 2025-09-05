@@ -193,20 +193,22 @@ func DecryptYAML(keys []string, in io.Reader, out io.Writer, stdinInUse, noTag b
 	decoder := yaml.NewDecoder(in)
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(2)
-	defer encoder.Close()
+	encoder.CompactSeqIndent()
 
 	for {
-		err := decoder.Decode(&w)
-		if err == io.EOF {
+		if err := decoder.Decode(&w); err == io.EOF {
 			break
 		} else if err != nil {
-			return err
+			return fmt.Errorf("yaml decoding failed: %w", err)
 		}
 
-		err = encoder.Encode(&node)
-		if err != nil {
-			return err
+		if err := encoder.Encode(&w); err != nil {
+			return fmt.Errorf("yaml encoding failed: %w", err)
 		}
+	}
+
+	if err := encoder.Close(); err != nil {
+		return fmt.Errorf("yaml encoding close failed: %w", err)
 	}
 
 	return nil

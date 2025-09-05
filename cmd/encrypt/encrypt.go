@@ -289,20 +289,21 @@ func EncryptYAML(recipients []age.Recipient, in io.Reader, out io.Writer) error 
 	encoder := yaml.NewEncoder(out)
 	encoder.SetIndent(2)
 	encoder.CompactSeqIndent()
-	defer encoder.Close()
 
 	for {
-		err := decoder.Decode(&w)
-		if err == io.EOF {
+		if err := decoder.Decode(&w); err == io.EOF {
 			break
 		} else if err != nil {
 			return fmt.Errorf("yaml decoding failed: %w", err)
 		}
 
-		err = encoder.Encode(&w)
-		if err != nil {
+		if err := encoder.Encode(&w); err != nil {
 			return fmt.Errorf("yaml encoding failed: %w", err)
 		}
+	}
+
+	if err := encoder.Close(); err != nil {
+		return fmt.Errorf("yaml encoding close failed: %w", err)
 	}
 
 	return nil
